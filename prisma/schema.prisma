@@ -1,0 +1,87 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+generator prismaClassGenerator {
+  provider               = "prisma-class-generator"
+  dryRun                 = "false"
+  separateRelationFields = "true"
+}
+
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Permission {
+  id              Int              @id @default(autoincrement())
+  action          String
+  condition       Json?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now()) @updatedAt
+  subjectId       Int?
+  subject         Subject?         @relation(fields: [subjectId], references: [id])
+  rolePermissions RolePermission[]
+
+  @@unique([action, subjectId])
+}
+
+model Subject {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @default(now()) @updatedAt
+  permissions Permission[]
+}
+
+model RolePermission {
+  id           Int         @id @default(autoincrement())
+  roleId       Int?
+  permissionId Int?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @default(now()) @updatedAt
+  permission   Permission? @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role?       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+}
+
+model Role {
+  id              Int              @id @default(autoincrement())
+  name            String           @unique
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now()) @updatedAt
+  rolePermissions RolePermission[]
+  user            User[]
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  roleId    Int?
+  name      String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  role      Role?    @relation(fields: [roleId], references: [id])
+}
+
+model Transaction {
+  id         Int           @id @default(autoincrement())
+  medium     PaymentMedium @default(ESEWA)
+  serviceId  Int           @unique
+  customerId Int?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @default(now()) @updatedAt
+}
+
+enum PaymentMedium {
+  ESEWA
+  KHALTI
+  FONEPAY
+}

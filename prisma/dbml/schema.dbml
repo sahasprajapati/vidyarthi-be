@@ -1,0 +1,83 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table Permission {
+  id Int [pk, increment]
+  action String [not null]
+  condition Json
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  subjectId Int
+  subject Subject
+  rolePermissions RolePermission [not null]
+
+  indexes {
+    (action, subjectId) [unique]
+  }
+}
+
+Table Subject {
+  id Int [pk, increment]
+  name String [unique, not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  permissions Permission [not null]
+}
+
+Table RolePermission {
+  id Int [pk, increment]
+  roleId Int
+  permissionId Int
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  permission Permission
+  role Role
+
+  indexes {
+    (roleId, permissionId) [unique]
+  }
+}
+
+Table Role {
+  id Int [pk, increment]
+  name String [unique, not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  rolePermissions RolePermission [not null]
+  user User [not null]
+}
+
+Table User {
+  id Int [pk, increment]
+  email String [unique, not null]
+  roleId Int
+  name String [not null]
+  password String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  role Role
+}
+
+Table Transaction {
+  id Int [pk, increment]
+  medium PaymentMedium [not null, default: 'ESEWA']
+  serviceId Int [unique, not null]
+  customerId Int
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+}
+
+Enum PaymentMedium {
+  ESEWA
+  KHALTI
+  FONEPAY
+}
+
+Ref: Permission.subjectId > Subject.id
+
+Ref: RolePermission.permissionId > Permission.id [delete: Cascade]
+
+Ref: RolePermission.roleId > Role.id [delete: Cascade]
+
+Ref: User.roleId > Role.id
