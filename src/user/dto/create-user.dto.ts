@@ -10,6 +10,9 @@ export class CreateUserDto {
   @ApiProperty()
   password: string;
 
+  @ApiProperty()
+  passwordResetToken: string;
+
   @ApiProperty({
     required: false,
   })

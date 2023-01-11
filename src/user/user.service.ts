@@ -82,6 +82,7 @@ export class UsersService {
             name: true,
           },
         },
+        isVerified: true,
       },
     };
     const users = await paginate<
@@ -111,6 +112,7 @@ export class UsersService {
             name: true,
           },
         },
+        isVerified: true,
       },
     });
   }
@@ -131,6 +133,28 @@ export class UsersService {
             name: true,
           },
         },
+        isVerified: true,
+      },
+    });
+  }
+
+  async findOneByToken(token: string) {
+    return this.prisma.user.findFirst({
+      where: {
+        passwordResetToken: token,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        password: true,
+        role: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        isVerified: true,
       },
     });
   }

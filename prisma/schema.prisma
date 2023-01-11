@@ -60,6 +60,12 @@ model Role {
   user            User[]
 }
 
+enum SocialProvider {
+  FACEBOOK
+  GOOGLE
+  NONE
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
@@ -69,6 +75,102 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   role      Role?    @relation(fields: [roleId], references: [id])
+
+  isVerified         Boolean   @default(false)
+  passwordResetToken String?   @unique
+  passwordResetAt    DateTime?
+
+  isSocialLogin  Boolean        @default(false)
+  socialProvider SocialProvider @default(NONE)
+
+  Rating Rating[]
+
+  teacherCourses Course[] @relation("Instructors")
+  studentCourses Course[] @relation("Students")
+
+  studentProfile   StudentProfile? @relation(fields: [studentProfileId], references: [id])
+  studentProfileId Int?
+  teacherProfile   TeacherProfile? @relation(fields: [teacherProfileId], references: [id])
+  teacherProfileId Int?
+}
+
+model StudentProfile {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  dob                  DateTime
+  occupation           Occupation? @relation(fields: [occupationId], references: [id])
+  occupationId         Int?
+  phone                BigInt?
+  institution          String?
+  currentQualification String?
+  highestQualification String
+
+  User User[]
+
+  isEmailUpdates Boolean
+}
+
+model Occupation {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  name String
+
+  StudentProfile StudentProfile[]
+}
+
+model TeacherProfile {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  title       String
+  biography   String
+  phoneNumber BigInt
+
+  notifications         TeacherNotification @relation(fields: [teacherNotificationId], references: [id])
+  teacherNotificationId Int
+
+  socialProfile   SocialProfile @relation(fields: [socialProfileId], references: [id])
+  socialProfileId Int
+  user            User[]
+}
+
+model TeacherNotification {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  notifications  TEACHER_NOTIFICATION_TYPE[]
+  TeacherProfile TeacherProfile[]
+}
+
+enum TEACHER_NOTIFICATION_TYPE {
+  WHO_BUY_COURSE
+  WHO_WRITE_REVIEW
+  WHO_COMMENT_COURSE
+  WHO_REPLIED_COURSE
+  DAILY_PROFILE_VISIT
+  WHO_DOWNOAD_COURSE_ATTACHMENT
+}
+
+model SocialProfile {
+  id Int @id @default(autoincrement())
+
+  website   String?
+  facebook  String?
+  instagram String?
+  linkedin  String?
+  twitter   String?
+  youtube   String?
+  whatsapp  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  TeacherProfile TeacherProfile[]
 }
 
 model Transaction {
@@ -84,4 +186,137 @@ enum PaymentMedium {
   ESEWA
   KHALTI
   FONEPAY
+}
+
+model Rating {
+  id      Int    @id @default(autoincrement())
+  message String
+
+  ratedBy User @relation(fields: [userId], references: [id])
+  userId  Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  course    Course?  @relation(fields: [courseId], references: [id])
+  courseId  Int?
+}
+
+model Course {
+  id       Int    @id @default(autoincrement())
+  courseId String @unique
+
+  title           String
+  subtitle        String
+  price           Float?
+  discountAmount  Float?
+  discountPercent Int?
+
+  topic    String?
+  
+  language Language @default(ENGLISH)
+  subtitleLanguage Language @default(ENGLISH)
+  level Level? @default(BEGINNER)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  category   Category @relation("MainCategory", fields: [categoryId], references: [id])
+  categoryId Int
+
+  subCategory   Category @relation("SubCategory", fields: [subCategoryId], references: [id])
+  subCategoryId Int
+
+  description String?
+
+  learnableContent String[]
+  skills           String[]
+
+  welcomeMessage        String?
+  congratulationMessage String?
+
+  instructors User[]    @relation("Instructors")
+  students    User[]    @relation("Students")
+  ratings     Rating[]
+  sections    Section[]
+  // Images/Videos URL
+  thumbnail   String?
+  trailer     String?
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  name        String   @unique
+  description String?  @db.Text
+
+  parentCategoryId Int?
+  parentCategory   Category?  @relation("CategoryToCategory", fields: [parentCategoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  courseCategory   Category[] @relation("CategoryToCategory")
+  mainCourses      Course[]   @relation("MainCategory")
+  subCourses       Course[]   @relation("SubCategory")
+
+  @@unique([name, parentCategoryId])
+  @@map("courseCategories")
+}
+
+enum Language {
+  ENGLISH
+  NEPALI
+}
+
+enum Level {
+  BEGINNER
+  INTERMEDIATE
+  PROFESSIONAL
+}
+
+model Duration {
+  id   Int    @id @default(autoincrement())
+  time String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Section {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  lectures  Lecture[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  Course    Course?   @relation(fields: [courseId], references: [id])
+  courseId  Int?
+}
+
+model Lecture {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  note   Note @relation(fields: [noteId], references: [id])
+  noteId Int  @unique
+
+  section   Section? @relation(fields: [sectionId], references: [id])
+  sectionId Int?
+
+  // url video
+  video   String
+  notesId Int
+}
+
+model Note {
+  id Int @id @default(autoincrement())
+
+  noteDescription String
+
+  // urls to note files
+  noteFiles String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  lecture   Lecture?
 }

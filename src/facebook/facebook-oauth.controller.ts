@@ -11,15 +11,20 @@ export class FacebookOauthController {
   @Public()
   @Get()
   @UseGuards(FacebookOauthGuard)
-  async googleAuth(@Req() _req) {
+  async googleAuth(@Req() _req, @Res() res: Response) {
     // Guard redirects
+    return res.redirect('/');
+
   }
 
   @Public()
-  @Get('redirect')
   @UseGuards(FacebookOauthGuard)
+  @Get("redirect")
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
     // For now, we'll just show the user object
-    return req.user;
+    // return req.user;
+    return res.redirect('/');
   }
+
+  
 }

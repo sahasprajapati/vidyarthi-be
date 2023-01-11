@@ -57,6 +57,77 @@ Table User {
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [default: `now()`, not null]
   role Role
+  isVerified Boolean [not null, default: false]
+  passwordResetToken String [unique]
+  passwordResetAt DateTime
+  isSocialLogin Boolean [not null, default: false]
+  socialProvider SocialProvider [not null, default: 'NONE']
+  Rating Rating [not null]
+  teacherCourses Course [not null]
+  studentCourses Course [not null]
+  studentProfile StudentProfile
+  studentProfileId Int
+  teacherProfile TeacherProfile
+  teacherProfileId Int
+}
+
+Table StudentProfile {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  dob DateTime [not null]
+  occupation Occupation
+  occupationId Int
+  phone BigInt
+  institution String
+  currentQualification String
+  highestQualification String [not null]
+  User User [not null]
+  isEmailUpdates Boolean [not null]
+}
+
+Table Occupation {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  name String [not null]
+  StudentProfile StudentProfile [not null]
+}
+
+Table TeacherProfile {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  title String [not null]
+  biography String [not null]
+  phoneNumber BigInt [not null]
+  notifications TeacherNotification [not null]
+  teacherNotificationId Int [not null]
+  socialProfile SocialProfile [not null]
+  socialProfileId Int [not null]
+  user User [not null]
+}
+
+Table TeacherNotification {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  notifications TEACHER_NOTIFICATION_TYPE[] [not null]
+  TeacherProfile TeacherProfile [not null]
+}
+
+Table SocialProfile {
+  id Int [pk, increment]
+  website String
+  facebook String
+  instagram String
+  linkedin String
+  twitter String
+  youtube String
+  whatsapp String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  TeacherProfile TeacherProfile [not null]
 }
 
 Table Transaction {
@@ -68,10 +139,145 @@ Table Transaction {
   updatedAt DateTime [default: `now()`, not null]
 }
 
+Table Rating {
+  id Int [pk, increment]
+  message String [not null]
+  ratedBy User [not null]
+  userId Int [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  course Course
+  courseId Int
+}
+
+Table Course {
+  id Int [pk, increment]
+  courseId String [unique, not null]
+  title String [not null]
+  subtitle String [not null]
+  price Float
+  discountAmount Float
+  discountPercent Int
+  topic String
+  language Language [not null, default: 'ENGLISH']
+  subtitleLanguage Language [not null, default: 'ENGLISH']
+  level Level [default: 'BEGINNER']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  category courseCategories [not null]
+  categoryId Int [not null]
+  subCategory courseCategories [not null]
+  subCategoryId Int [not null]
+  description String
+  learnableContent String[] [not null]
+  skills String[] [not null]
+  welcomeMessage String
+  congratulationMessage String
+  instructors User [not null]
+  students User [not null]
+  ratings Rating [not null]
+  sections Section [not null]
+  thumbnail String
+  trailer String
+}
+
+Table courseCategories {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  name String [unique, not null]
+  description String
+  parentCategoryId Int
+  parentCategory courseCategories
+  courseCategory courseCategories [not null]
+  mainCourses Course [not null]
+  subCourses Course [not null]
+
+  indexes {
+    (name, parentCategoryId) [unique]
+  }
+}
+
+Table Duration {
+  id Int [pk, increment]
+  time String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+}
+
+Table Section {
+  id Int [pk, increment]
+  name String [not null]
+  lectures Lecture [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  Course Course
+  courseId Int
+}
+
+Table Lecture {
+  id Int [pk, increment]
+  name String [not null]
+  description String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  note Note [not null]
+  noteId Int [unique, not null]
+  section Section
+  sectionId Int
+  video String [not null]
+  notesId Int [not null]
+}
+
+Table Note {
+  id Int [pk, increment]
+  noteDescription String [not null]
+  noteFiles String[] [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  lecture Lecture
+}
+
+Table Instructors {
+  teachercoursesId Int [ref: > Course.id]
+  instructorsId Int [ref: > User.id]
+}
+
+Table Students {
+  studentcoursesId Int [ref: > Course.id]
+  studentsId Int [ref: > User.id]
+}
+
+Enum SocialProvider {
+  FACEBOOK
+  GOOGLE
+  NONE
+}
+
+Enum TEACHER_NOTIFICATION_TYPE {
+  WHO_BUY_COURSE
+  WHO_WRITE_REVIEW
+  WHO_COMMENT_COURSE
+  WHO_REPLIED_COURSE
+  DAILY_PROFILE_VISIT
+  WHO_DOWNOAD_COURSE_ATTACHMENT
+}
+
 Enum PaymentMedium {
   ESEWA
   KHALTI
   FONEPAY
+}
+
+Enum Language {
+  ENGLISH
+  NEPALI
+}
+
+Enum Level {
+  BEGINNER
+  INTERMEDIATE
+  PROFESSIONAL
 }
 
 Ref: Permission.subjectId > Subject.id
@@ -81,3 +287,29 @@ Ref: RolePermission.permissionId > Permission.id [delete: Cascade]
 Ref: RolePermission.roleId > Role.id [delete: Cascade]
 
 Ref: User.roleId > Role.id
+
+Ref: User.studentProfileId > StudentProfile.id
+
+Ref: User.teacherProfileId > TeacherProfile.id
+
+Ref: StudentProfile.occupationId > Occupation.id
+
+Ref: TeacherProfile.teacherNotificationId > TeacherNotification.id
+
+Ref: TeacherProfile.socialProfileId > SocialProfile.id
+
+Ref: Rating.userId > User.id
+
+Ref: Rating.courseId > Course.id
+
+Ref: Course.categoryId > courseCategories.id
+
+Ref: Course.subCategoryId > courseCategories.id
+
+Ref: courseCategories.parentCategoryId - courseCategories.id [delete: No Action]
+
+Ref: Section.courseId > Course.id
+
+Ref: Lecture.noteId - Note.id
+
+Ref: Lecture.sectionId > Section.id
