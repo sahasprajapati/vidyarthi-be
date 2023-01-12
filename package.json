@@ -8,6 +8,7 @@
   "scripts": {
     "prebuild": "rimraf dist && npx prisma generate",
     "build": "nest build",
+    "vercel-build": "rimraf dist && npx prisma generate && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "gen-enum": "ts-node prisma/generator.ts",
     "start": "nest start",
