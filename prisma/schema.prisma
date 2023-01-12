@@ -250,14 +250,11 @@ model Category {
   name        String   @unique
   description String?  @db.Text
 
-  parentCategoryId Int?
-  parentCategory   Category?  @relation("CategoryToCategory", fields: [parentCategoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  courseCategory   Category[] @relation("CategoryToCategory")
+  // parentCategoryId Int?
+  // parentCategory   Category?  @relation("CategoryToCategory", fields: [parentCategoryId], references: [id])
+  // courseCategory   Category[] @relation("CategoryToCategory")
   mainCourses      Course[]   @relation("MainCategory")
   subCourses       Course[]   @relation("SubCategory")
-
-  @@unique([name, parentCategoryId])
-  @@map("courseCategories")
 }
 
 enum Language {

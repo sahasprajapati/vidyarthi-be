@@ -164,9 +164,9 @@ Table Course {
   level Level [default: 'BEGINNER']
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [default: `now()`, not null]
-  category courseCategories [not null]
+  category Category [not null]
   categoryId Int [not null]
-  subCategory courseCategories [not null]
+  subCategory Category [not null]
   subCategoryId Int [not null]
   description String
   learnableContent String[] [not null]
@@ -181,21 +181,14 @@ Table Course {
   trailer String
 }
 
-Table courseCategories {
+Table Category {
   id Int [pk, increment]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [default: `now()`, not null]
   name String [unique, not null]
   description String
-  parentCategoryId Int
-  parentCategory courseCategories
-  courseCategory courseCategories [not null]
   mainCourses Course [not null]
   subCourses Course [not null]
-
-  indexes {
-    (name, parentCategoryId) [unique]
-  }
 }
 
 Table Duration {
@@ -302,11 +295,9 @@ Ref: Rating.userId > User.id
 
 Ref: Rating.courseId > Course.id
 
-Ref: Course.categoryId > courseCategories.id
+Ref: Course.categoryId > Category.id
 
-Ref: Course.subCategoryId > courseCategories.id
-
-Ref: courseCategories.parentCategoryId - courseCategories.id [delete: No Action]
+Ref: Course.subCategoryId > Category.id
 
 Ref: Section.courseId > Course.id
 
