@@ -225,8 +225,8 @@ Table Lecture {
   updatedAt DateTime [default: `now()`, not null]
   note Note
   noteId Int [unique]
-  section Section
-  sectionId Int
+  section Section [not null]
+  sectionId Int [not null]
   video String [not null]
 }
 

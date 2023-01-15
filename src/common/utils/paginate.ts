@@ -30,6 +30,7 @@ export const paginate = async <Model, FindParams>(
   // CRUD operations
   let entities = await (model as any).findMany(criteria);
   delete criteria['select'];
+  delete criteria['include'];
   delete criteria['take'];
   delete criteria['skip'];
 

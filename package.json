@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "prebuild": "rimraf dist && npx prisma generate",
+    "prebuild": "rimraf dist && npx prisma generate && npm run copy-static",
     "build": "nest build",
     "copy-static": "cp  -r 'static' 'dist'",
     "vercel-build": "rimraf dist && npx prisma generate && nest build",

@@ -41,6 +41,20 @@ export class CourseService {
         subCategoryId: createCourseDto.subCategoryId,
         categoryId: createCourseDto.categoryId,
       },
+      include: {
+        category: true,
+        subCategory: true,
+        instructors: true,
+        sections: {
+          include: {
+            lectures: {
+              include: {
+                note: true,
+              },
+            },
+          },
+        },
+      },
     });
   }
 
@@ -52,6 +66,20 @@ export class CourseService {
       take: pageOptionsDto.take,
       orderBy: {
         createdAt: pageOptionsDto.order,
+      },
+      include: {
+        category: true,
+        subCategory: true,
+        instructors: true,
+        sections: {
+          include: {
+            lectures: {
+              include: {
+                note: true,
+              },
+            },
+          },
+        },
       },
     };
     if (pageOptionsDto.filter) {
@@ -88,6 +116,20 @@ export class CourseService {
     return this.prisma.course.findFirst({
       where: {
         id: id,
+      },
+      include: {
+        category: true,
+        subCategory: true,
+        instructors: true,
+        sections: {
+          include: {
+            lectures: {
+              include: {
+                note: true,
+              },
+            },
+          },
+        },
       },
     });
   }
@@ -131,7 +173,7 @@ export class CourseService {
     const data: any = {};
 
     if (noteId) {
-      data['noteId'] = noteId;
+      data['noteId'] = noteId?.id;
     }
     if (lecture.name) data['name'] = lecture.name;
     if (lecture.description) data['description'] = lecture.description;
@@ -152,39 +194,44 @@ export class CourseService {
       newLectureId = await this.prisma.lecture.create({
         data: {
           ...data,
-          section: {
-            connect: {
-              id: sectionId,
-            },
-          },
+          sectionId: sectionId,
         },
       });
     }
     return newLectureId;
   }
   async sectionUpsert(sections: SectionDto[], courseId: number) {
-    sections?.map((section) => {
-      // Lecture
-      section.lectures?.map(async (lecture) => {
-        await this.lectureUpsert(lecture, section.id);
-      });
-
-      // Section
-      const data = {};
-      if (section.name) data['name'] = section.name;
-      if (section.listOrder) data['listOrder'] = section.listOrder;
-      if (section.id) {
-        this.prisma.section.update({
-          where: {
-            id: section.id,
-          },
-          data: {
-            ...data,
-            courseId: courseId,
-          },
+    await Promise.all(
+      sections?.map(async (section) => {
+        // Lecture
+        section.lectures?.map(async (lecture) => {
+          await this.lectureUpsert(lecture, section.id);
         });
-      }
-    });
+
+        // Section
+        const data: any = {};
+        if (section.name) data['name'] = section.name;
+        if (section.listOrder) data['listOrder'] = section.listOrder;
+        if (section.id && courseId) {
+          await this.prisma.section.update({
+            where: {
+              id: section.id,
+            },
+            data: {
+              ...data,
+              courseId: courseId,
+            },
+          });
+        } else {
+          await this.prisma.section.create({
+            data: {
+              ...data,
+              courseId: courseId as never,
+            },
+          });
+        }
+      }),
+    );
   }
   async update(id: number, updateCourseDto: UpdateCourseDto) {
     await verifyEntity({
@@ -215,6 +262,17 @@ export class CourseService {
     if (updateCourseDto.thumbnail)
       data['thumbnail'] = updateCourseDto.thumbnail;
 
+    if (updateCourseDto.welcomeMessage)
+      data['welcomeMessage'] = updateCourseDto.welcomeMessage;
+    if (updateCourseDto.congratulationMessage)
+      data['congratulationMessage'] = updateCourseDto.congratulationMessage;
+    if (updateCourseDto.instructorIds)
+      data['instructors'] = {
+        connect: updateCourseDto.instructorIds?.map((id) => ({
+          id: id,
+        })),
+      };
+
     // Lecture
     if (updateCourseDto.sections) {
       this.sectionUpsert(updateCourseDto.sections, id);
@@ -224,6 +282,20 @@ export class CourseService {
       where: { id },
       data: {
         ...data,
+      },
+      include: {
+        category: true,
+        subCategory: true,
+        instructors: true,
+        sections: {
+          include: {
+            lectures: {
+              include: {
+                note: true,
+              },
+            },
+          },
+        },
       },
     });
   }
