@@ -211,11 +211,11 @@ model Course {
   discountAmount  Float?
   discountPercent Int?
 
-  topic    String?
-  
-  language Language @default(ENGLISH)
+  topic String?
+
+  language         Language @default(ENGLISH)
   subtitleLanguage Language @default(ENGLISH)
-  level Level? @default(BEGINNER)
+  level            Level?   @default(BEGINNER)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -250,11 +250,14 @@ model Category {
   name        String   @unique
   description String?  @db.Text
 
-  // parentCategoryId Int?
-  // parentCategory   Category?  @relation("CategoryToCategory", fields: [parentCategoryId], references: [id])
-  // courseCategory   Category[] @relation("CategoryToCategory")
+  parentCategoryId Int?
+  parentCategory   Category?  @relation("CategoryToCategory", fields: [parentCategoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  courseCategory   Category[] @relation("CategoryToCategory")
   mainCourses      Course[]   @relation("MainCategory")
   subCourses       Course[]   @relation("SubCategory")
+
+  @@unique([name, parentCategoryId])
+  @@map("courseCategories")
 }
 
 enum Language {
@@ -280,6 +283,7 @@ model Section {
   id   Int    @id @default(autoincrement())
   name String
 
+  listOrder Int
   lectures  Lecture[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
@@ -288,28 +292,27 @@ model Section {
 }
 
 model Lecture {
-  id   Int    @id @default(autoincrement())
-  name String
-
-  description String
+  id          Int      @id @default(autoincrement())
+  name        String
+  listOrder   Int
+  description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
 
-  note   Note @relation(fields: [noteId], references: [id])
-  noteId Int  @unique
+  note   Note? @relation(fields: [noteId], references: [id])
+  noteId Int?  @unique
 
-  section   Section? @relation(fields: [sectionId], references: [id])
-  sectionId Int?
+  section   Section @relation(fields: [sectionId], references: [id])
+  sectionId Int
 
   // url video
-  video   String
-  notesId Int
+  video String
 }
 
 model Note {
   id Int @id @default(autoincrement())
 
-  noteDescription String
+  noteDescription String?
 
   // urls to note files
   noteFiles String[]

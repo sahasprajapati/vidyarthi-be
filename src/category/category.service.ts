@@ -9,7 +9,6 @@ import { paginateFilter } from './../common/utils/paginate';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
-
 @Injectable()
 export class CategorysService {
   constructor(private prisma: PrismaService) {}
@@ -27,19 +26,29 @@ export class CategorysService {
     return this.prisma.category.create({
       data: {
         name: createCategoryDto.name,
-        ...(createCategoryDto.description ? {descrption: createCategoryDto.description}: {}),
-        ...(createCategoryDto.parentCategoryId ? {parentCategoryId: createCategoryDto.parentCategoryId}: {}),
+        ...(createCategoryDto.description
+          ? { description: createCategoryDto.description }
+          : {}),
+        ...(createCategoryDto.parentCategoryId
+          ? { parentCategoryId: createCategoryDto.parentCategoryId }
+          : {}),
       },
     });
   }
 
-  async findAll(
-    pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<Category>> {
+  async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<Category>> {
     // Get proper criteria using prisma findMany types
     // this.prisma.category.findMany();
     const criteria: Prisma.CategoryFindManyArgs = {
-      where: {
+      skip: pageOptionsDto.skip,
+      take: pageOptionsDto.take,
+      orderBy: {
+        createdAt: pageOptionsDto.order,
+      },
+    };
+
+    if (pageOptionsDto.filter) {
+      criteria.where = {
         OR: [
           {
             name: {
@@ -52,17 +61,13 @@ export class CategorysService {
             },
           },
         ],
-      },
-      skip: pageOptionsDto.skip,
-      take: pageOptionsDto.take,
-      orderBy: {
-        createdAt: pageOptionsDto.order,
-      },
-    };
-    const categorys = await paginate<
-      Category,
-      Prisma.CategoryFindManyArgs
-    >(this.prisma.category, criteria, pageOptionsDto);
+      };
+    }
+    const categorys = await paginate<Category, Prisma.CategoryFindManyArgs>(
+      this.prisma.category,
+      criteria,
+      pageOptionsDto,
+    );
     return categorys;
   }
 
@@ -78,7 +83,6 @@ export class CategorysService {
       },
     });
   }
-
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto) {
     await verifyEntity({

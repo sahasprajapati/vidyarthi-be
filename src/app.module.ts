@@ -17,9 +17,15 @@ import { EmailModule } from './email/email.module';
 import { PasswordModule } from './password/password.module';
 import { CourseModule } from './course/course.module';
 import { CategoryModule } from './category/category.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'static'),
+      exclude: ['/api*'],
+    }),
     ConfigModule.forRoot({ isGlobal: true, load: [config] }),
     PrismaModule,
     AuthModule,

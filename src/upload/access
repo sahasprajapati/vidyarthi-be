@@ -1,0 +1,5 @@
+ssh root@134.209.148.89
+Pr@$h@ntdigitalOcean0123459876vidhyarthi
+Prashant Khanal8:39 PM
+sudo nano /etc/gdm3/custom.conf
+WaylandEnable=false

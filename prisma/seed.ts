@@ -34,41 +34,72 @@ async function main() {
     }),
   );
 
-  await Promise.all(
-    Object.values(PermissionAction).map(async (action) => {
-      return await Promise.all(
-        subjects.map(async (subject) => {
-          const permission = await prisma.permission.upsert({
-            where: {
-              action_subjectId:{
-                subjectId: subject.id,
-                action: action,
-              },
-            },
-            update: {},
-            create: {
-              subjectId: subject.id,
-              action: action,
-            },
-          });
+  for(const action of Object.values(PermissionAction)) {
+    for(const subject of subjects){
+      const permission = await prisma.permission.upsert({
+        where: {
+          action_subjectId:{
+            subjectId: subject.id,
+            action: action,
+          },
+        },
+        update: {},
+        create: {
+          subjectId: subject.id,
+          action: action,
+        },
+      });
 
-          const permission_role = await prisma.rolePermission.upsert({
-            where: {
-              roleId_permissionId: {
-                roleId: role.id,
-                permissionId: permission.id,
-              },
-            },
-            update: {},
-            create: {
-              roleId: role.id,
-              permissionId: permission.id,
-            },
-          });
-        }),
-      );
-    }),
-  );
+      const permission_role = await prisma.rolePermission.upsert({
+        where: {
+          roleId_permissionId: {
+            roleId: role.id,
+            permissionId: permission.id,
+          },
+        },
+        update: {},
+        create: {
+          roleId: role.id,
+          permissionId: permission.id,
+        },
+      }); 
+    }
+  }
+  // await Promise.all(
+  //   Object.values(PermissionAction).map(async (action) => {
+  //     return await Promise.all(
+  //       subjects.map(async (subject) => {
+  //         const permission = await prisma.permission.upsert({
+  //           where: {
+  //             action_subjectId:{
+  //               subjectId: subject.id,
+  //               action: action,
+  //             },
+  //           },
+  //           update: {},
+  //           create: {
+  //             subjectId: subject.id,
+  //             action: action,
+  //           },
+  //         });
+
+  //         const permission_role = await prisma.rolePermission.upsert({
+  //           where: {
+  //             roleId_permissionId: {
+  //               roleId: role.id,
+  //               permissionId: permission.id,
+  //             },
+  //           },
+  //           update: {},
+  //           create: {
+  //             roleId: role.id,
+  //             permissionId: permission.id,
+  //           },
+  //         });
+  //       }),
+  //     );
+  //   }),
+  // );
 
   const superUser = await prisma.user.upsert({
     where: { email: 'super@admin.com' },

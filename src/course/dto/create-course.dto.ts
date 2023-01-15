@@ -3,24 +3,34 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class Lecture {
   @ApiProperty({ required: false })
+  id?: number;
+  @ApiProperty({ required: false })
   name?: string;
   @ApiProperty({ required: false })
   description?: string;
   @ApiProperty({ required: false })
   video?: string;
+  @ApiProperty({ required: false })
+  listOrder?: number;
 
   // Note DTO
   @ApiProperty({ required: false })
+  noteId?: number;
+  @ApiProperty({ required: false })
   noteDescription?: string;
   @ApiProperty({ required: false })
-  noteFiles?: string;
+  noteFiles?: string[];
 }
 
 export class SectionDto {
   @ApiProperty({ required: false })
+  id?: number;
+  @ApiProperty({ required: false })
   name?: string;
   @ApiProperty({ required: false })
   lectures?: Lecture[]
+  @ApiProperty({ required: false })
+  listOrder?: number;
 }
 
 export class CreateCourseDto {

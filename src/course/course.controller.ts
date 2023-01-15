@@ -15,14 +15,10 @@ import {
   Patch,
   Post,
   Put,
-  Query,
-  UseGuards,
-  UseInterceptors,
+  Query, UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CaslAbilityFactory } from '@src/auth/casl-ability.factory/casl-ability.factory';
-import { PermissionsGuard } from '@src/auth/decorator/permission.guard';
-import { CheckPermissions } from '@src/auth/decorator/permissions.decorator';
 import { CheckPolicies } from '@src/auth/decorator/policy.decorator';
 import { PageOptionsDto } from '@src/common/dtos/pagination/page-options.dto';
 import { PermissionAction } from '@src/common/enums/permission.enum';

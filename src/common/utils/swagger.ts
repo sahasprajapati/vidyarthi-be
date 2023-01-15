@@ -13,5 +13,5 @@ export function setupSwagger(app: INestApplication): void {
   const document = SwaggerModule.createDocument(app, options, {
     extraModels: [...PrismaModel.extraModels],
   });
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('docs', app, document);
 }

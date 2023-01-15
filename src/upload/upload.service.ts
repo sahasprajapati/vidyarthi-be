@@ -22,5 +22,23 @@ export class UploadService {
           }
         });
     }
+
+    async uploadVideoFile(
+      file: Express.Multer.File
+    ): Promise<UploadApiResponse | UploadApiErrorResponse> {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const filename = `${uniqueSuffix}-${file.originalname.split('.')[0]}`;
+          const res = await this.cloudinaryService.uploadVideoFile(
+              file.buffer,
+              filename
+            );
+            resolve(res);
+          } catch (error) {
+            reject(error);
+          }
+        });
+    }
   }
   
