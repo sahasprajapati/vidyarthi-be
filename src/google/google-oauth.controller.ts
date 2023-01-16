@@ -1,12 +1,16 @@
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from '@src/auth/auth.service';
 import { Public } from '@src/auth/decorator/public.decorator';
+import { UsersService } from '@src/user/user.service';
 import { Request, Response } from 'express';
 import { GoogleOauthGuard } from './google-oauth.guard';
-
+import { nanoid } from 'nanoid';
 @Controller('google')
 export class GoogleOauthController {
-  constructor(private jwtAuthService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private userService: UsersService,
+  ) {}
 
   @Public()
   @Get()
@@ -19,7 +23,22 @@ export class GoogleOauthController {
   @Get('redirect')
   @UseGuards(GoogleOauthGuard)
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
+    let user = await this.authService.validateUser(
+      (req?.user as any)?.email,
+      null,
+      true,
+    );
+    if (!user) {
+      user = await this.userService.create({
+        name: (req.user as any)?.name,
+        email: (req.user as any)?.email,
+        password: nanoid(),
+        passwordResetToken: null,
+      });
+    }
     // For now, we'll just show the user object
-    return req.user;
+    const tokens = await this.authService.login(user);
+
+    return res.redirect(`/login?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`)
   }
 }

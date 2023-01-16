@@ -42,11 +42,19 @@ export class UsersService {
 
   async findAll(
     pageOptionsDto: PageOptionsDto,
+    options?: {
+      role: 'student' | 'instructor' | 'super';
+    },
   ): Promise<PageDto<FindAllUserWithSelect>> {
     // Get proper criteria using prisma findMany types
     // this.prisma.user.findMany();
     const criteria: Prisma.UserFindManyArgs = {
       where: {
+        ...(options?.role && {
+          role: {
+            name: options.role,
+          },
+        }),
         OR: [
           {
             name: {

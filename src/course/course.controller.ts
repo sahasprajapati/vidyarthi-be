@@ -35,8 +35,7 @@ import { CourseEntity } from './entities/course.entity';
 @ApiTags('course')
 export class CourseController {
   constructor(
-    private readonly courseService: CourseService,
-    private abilityFactory: CaslAbilityFactory,
+    private readonly courseService: CourseService
   ) {}
 
   @Post()

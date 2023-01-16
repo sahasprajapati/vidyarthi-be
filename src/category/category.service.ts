@@ -40,6 +40,9 @@ export class CategorysService {
     // Get proper criteria using prisma findMany types
     // this.prisma.category.findMany();
     const criteria: Prisma.CategoryFindManyArgs = {
+      where: {
+        parentCategoryId: null
+      },
       skip: pageOptionsDto.skip,
       take: pageOptionsDto.take,
       orderBy: {
@@ -49,6 +52,46 @@ export class CategorysService {
 
     if (pageOptionsDto.filter) {
       criteria.where = {
+        ...criteria.where,
+        OR: [
+          {
+            name: {
+              ...paginateFilter(pageOptionsDto.filter),
+            },
+          },
+          {
+            description: {
+              ...paginateFilter(pageOptionsDto.filter),
+            },
+          },
+        ],
+      };
+    }
+    const categorys = await paginate<Category, Prisma.CategoryFindManyArgs>(
+      this.prisma.category,
+      criteria,
+      pageOptionsDto,
+    );
+    return categorys;
+  }
+
+  async findAllSubCategory(id: number, pageOptionsDto: PageOptionsDto): Promise<PageDto<Category>> {
+    // Get proper criteria using prisma findMany types
+    // this.prisma.category.findMany();
+    const criteria: Prisma.CategoryFindManyArgs = {
+      where: {
+        parentCategoryId: id,
+      },
+      skip: pageOptionsDto.skip,
+      take: pageOptionsDto.take,
+      orderBy: {
+        createdAt: pageOptionsDto.order,
+      },
+    };
+
+    if (pageOptionsDto.filter) {
+      criteria.where = {
+        ...criteria.where,
         OR: [
           {
             name: {

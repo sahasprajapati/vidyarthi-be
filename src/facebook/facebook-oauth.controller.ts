@@ -1,17 +1,19 @@
 import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from '@src/auth/auth.service';
 import { Public } from '@src/auth/decorator/public.decorator';
+import { UsersService } from '@src/user/user.service';
 import { Request, Response } from 'express';
+import { nanoid } from 'nanoid';
 import { FacebookOauthGuard } from './facebook-oauth.guard';
 
 @Controller('facebook')
 export class FacebookOauthController {
-  constructor(private jwtAuthService: AuthService) {}
+  constructor(private authService: AuthService, private userService: UsersService) {}
 
   @Public()
   @Get()
   @UseGuards(FacebookOauthGuard)
-  async googleAuth(@Req() _req, @Res() res: Response) {
+  async facebookAuth(@Req() _req, @Res() res: Response) {
     // Guard redirects
     return res.redirect('/');
 
@@ -20,10 +22,25 @@ export class FacebookOauthController {
   @Public()
   @UseGuards(FacebookOauthGuard)
   @Get("redirect")
-  async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
+  async facebookAuthRedirect(@Req() req: Request, @Res() res: Response) {
+
+    let user = await this.authService.validateUser(
+      (req?.user as any)?.email,
+      null,
+      true,
+    );
+    if (!user) {
+      user = await this.userService.create({
+        name: (req.user as any)?.name,
+        email: (req.user as any)?.email,
+        password: nanoid(),
+        passwordResetToken: null,
+      });
+    }
     // For now, we'll just show the user object
-    // return req.user;
-    return res.redirect('/');
+    const tokens = await this.authService.login(user);
+
+    return res.redirect(`/login?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`)
   }
 
   

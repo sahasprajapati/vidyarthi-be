@@ -37,10 +37,10 @@ export class AuthService {
     });
   }
 
-  async validateUser(username: string, pass: string): Promise<any> {
+  async validateUser(username: string, pass: string, isSocialLogin: boolean = false): Promise<any> {
     const user = await this.usersService.findOneByEmail(username);
-    if (user && user.password === pass) {
-      const { password, ...result } = user;
+    const { password, ...result } = user ?? {};
+    if ((isSocialLogin && user) || (user && user.password === pass)) {
       return result;
     }
     return null;

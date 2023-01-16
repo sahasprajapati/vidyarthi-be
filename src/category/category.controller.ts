@@ -64,13 +64,18 @@ export class CategoryController {
     new CustomPolicyHandler(PermissionAction.Read, PermissionSubject.Category),
   )
   async findAll(@Query() pageOptionsDto: PageOptionsDto) {
-    // const ability = await this.abilityFactory.createForCategory(req.user)
-    // ability.can()
-    // if (ability.can(PermissionAction.READ, condition)) {
-    //   throw new ForbiddenException("You dont have access to this resource!");
-    // }
     return this.categoryService.findAll(pageOptionsDto);
   }
+
+  @Get('sub/:id')
+  @ApiPaginatedResponse(Category, true)
+  @CheckPolicies(
+    new CustomPolicyHandler(PermissionAction.Read, PermissionSubject.Category),
+  )
+  async findAllSubCategory(@Query() pageOptionsDto: PageOptionsDto, @Param('id') id: number) {
+    return this.categoryService.findAllSubCategory(id, pageOptionsDto);
+  }
+
 
   @Get(':id')
   @ApiCustomResponse(Category, true)
