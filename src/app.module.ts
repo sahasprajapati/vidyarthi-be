@@ -24,8 +24,7 @@ import { join } from 'path';
   imports: [
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'static'),
-      // exclude: ['/api/*'],
-      renderPath: "/"
+      exclude: ['/api/*'],
     }),
     ConfigModule.forRoot({ isGlobal: true, load: [config] }),
     PrismaModule,
