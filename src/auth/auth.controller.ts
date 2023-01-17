@@ -20,6 +20,7 @@ import { PoliciesGuard } from './decorator/policy.guard';
 import { Public } from './decorator/public.decorator';
 import { LoginDto } from './dto/login.dto';
 import { RefreshToken } from './dto/refresh.dto';
+import { RegisterDto } from './dto/register.dto';
 
 @ApiBearerAuth()
 @Controller('auth')
@@ -36,6 +37,14 @@ export class AuthController {
   async login(@Body() login: LoginDto, @Request() req) {
     return {
       data: await this.authService.login(req.user),
+    };
+  }
+
+  @Public()
+  @Post('register')
+  async register(@Body() register: RegisterDto) {
+    return {
+      data: await this.authService.register(register),
     };
   }
 

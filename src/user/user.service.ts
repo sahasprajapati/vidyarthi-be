@@ -37,6 +37,9 @@ export class UsersService {
         password: createUserDto.password,
         roleId: createUserDto.roleId,
       },
+      include: {
+        role: true,
+      },
     });
   }
 

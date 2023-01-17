@@ -40,7 +40,7 @@ export class FacebookOauthController {
     // For now, we'll just show the user object
     const tokens = await this.authService.login(user);
 
-    return res.redirect(`/login?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`)
+    return res.redirect(`/login?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}&role=${user?.role?.name}`)
   }
 
   

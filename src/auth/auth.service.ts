@@ -1,10 +1,16 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Permission, Prisma, User } from '@prisma/client';
 import { SecurityConfig } from '@src/configs';
 import { PrismaService } from '@src/prisma/prisma.service';
 import { UsersService } from '@src/user/user.service';
+import { RegisterDto } from './dto/register.dto';
 import { Token } from './dto/token.dto';
 
 export type PermissionWithSubject = Prisma.PermissionGetPayload<{
@@ -18,8 +24,7 @@ export class AuthService {
     private prisma: PrismaService,
     private usersService: UsersService,
     private jwtService: JwtService,
-    private readonly configService: ConfigService
-
+    private readonly configService: ConfigService,
   ) {}
 
   async findAllPermissionsOfUser(user: User): Promise<PermissionWithSubject[]> {
@@ -37,7 +42,11 @@ export class AuthService {
     });
   }
 
-  async validateUser(username: string, pass: string, isSocialLogin: boolean = false): Promise<any> {
+  async validateUser(
+    username: string,
+    pass: string,
+    isSocialLogin: boolean = false,
+  ): Promise<any> {
     const user = await this.usersService.findOneByEmail(username);
     const { password, ...result } = user ?? {};
     if ((isSocialLogin && user) || (user && user.password === pass)) {
@@ -47,13 +56,14 @@ export class AuthService {
   }
 
   async login(user: any) {
-    return this.generateTokens({
-      userId: user?.id,
-    });
+    console.log(user);
+    return {
+      ...this.generateTokens({
+        userId: user?.id,
+      }),
+      role: user?.role?.name,
+    };
   }
-
-
-
 
   generateTokens(payload: { userId: string }): Token {
     return {
@@ -101,5 +111,26 @@ export class AuthService {
     });
   }
 
-
+  async register(registerDto: RegisterDto) {
+    if(registerDto.password !== registerDto.confirmPassword) {
+      return new BadRequestException("Password do not match");
+    }
+    let user = await this.usersService.findOneByEmail(registerDto.email);
+    if (user) {
+      return new ConflictException('User already registered');
+    }
+    const newUser = await this.usersService.create({
+      name: registerDto.firstName + ' ' + registerDto.lastName,
+      email: registerDto.email,
+      password: registerDto.password,
+      passwordResetToken: null,
+      roleId: 2, // student
+    });
+    return {
+      ...this.generateTokens({
+        userId: newUser?.id + '',
+      }),
+      role: newUser?.role?.name,
+    };
+  }
 }
