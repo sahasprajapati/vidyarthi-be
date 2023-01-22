@@ -115,7 +115,7 @@ export class CourseService {
     });
     return this.prisma.course.findFirst({
       where: {
-        id: id,
+        id: +id,
       },
       include: {
         category: true,

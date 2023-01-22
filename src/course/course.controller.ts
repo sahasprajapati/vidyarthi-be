@@ -20,6 +20,7 @@ import {
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CaslAbilityFactory } from '@src/auth/casl-ability.factory/casl-ability.factory';
 import { CheckPolicies } from '@src/auth/decorator/policy.decorator';
+import { Public } from '@src/auth/decorator/public.decorator';
 import { PageOptionsDto } from '@src/common/dtos/pagination/page-options.dto';
 import { PermissionAction } from '@src/common/enums/permission.enum';
 
@@ -54,6 +55,7 @@ export class CourseController {
   }
 
   @Get()
+  @Public()
   @ApiPaginatedResponse(Course, true)
   @CheckPolicies(
     new CustomPolicyHandler(PermissionAction.Read, PermissionSubject.Course),

@@ -111,7 +111,7 @@ export class UsersService {
     });
     return this.prisma.user.findFirst({
       where: {
-        id: id,
+        id: +id,
       },
       select: {
         id: true,

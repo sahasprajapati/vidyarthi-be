@@ -100,7 +100,7 @@ export class AuthService {
 
   validateJWTUser(userId: number): Promise<User> {
     return this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: +userId },
       include: {
         role: {
           select: {

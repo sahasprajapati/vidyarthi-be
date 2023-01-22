@@ -145,7 +145,7 @@ export class RolesService {
     });
     return this.prisma.role.findFirst({
       where: {
-        id: id,
+        id: +id,
       },
     });
   }

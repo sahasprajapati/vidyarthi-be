@@ -122,7 +122,7 @@ export class CategorysService {
     });
     return this.prisma.category.findFirst({
       where: {
-        id: id,
+        id: +id,
       },
     });
   }
