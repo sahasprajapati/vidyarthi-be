@@ -92,6 +92,9 @@ model User {
   studentProfileId Int?
   teacherProfile   TeacherProfile? @relation(fields: [teacherProfileId], references: [id])
   teacherProfileId Int?
+  cart             Cart?           @relation(fields: [cartId], references: [id])
+  cartId           Int?
+  orders           Order[]
 }
 
 model StudentProfile {
@@ -241,6 +244,8 @@ model Course {
   // Images/Videos URL
   thumbnail   String?
   trailer     String?
+  cart        Cart[]
+  order       Order[]
 }
 
 model Category {
@@ -304,7 +309,7 @@ model Lecture {
 
   section   Section @relation(fields: [sectionId], references: [id])
   sectionId Int
-
+  length String
   // url video
   video String
 }
@@ -319,4 +324,22 @@ model Note {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   lecture   Lecture?
+}
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  course Course[]
+  user   User[]
+}
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  course Course[]
+  user   User[]
 }

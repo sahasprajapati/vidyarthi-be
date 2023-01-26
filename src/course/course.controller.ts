@@ -69,6 +69,7 @@ export class CourseController {
     return this.courseService.findAll(pageOptionsDto);
   }
 
+  @Public()
   @Get(':id')
   @ApiCustomResponse(Course, true)
   @CheckPolicies(

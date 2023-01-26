@@ -11,6 +11,8 @@ export class Lecture {
   @ApiProperty({ required: false })
   video?: string;
   @ApiProperty({ required: false })
+  length?: string;
+  @ApiProperty({ required: false })
   listOrder?: number;
 
   // Note DTO

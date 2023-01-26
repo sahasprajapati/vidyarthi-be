@@ -1,3 +1,4 @@
+import { Public } from '@src/auth/decorator/public.decorator';
 import { ApiCustomResponse } from '@common/decorators/api-custom-response.decorator';
 import { ApiPaginatedResponse } from '@common/decorators/api-paginated-response.decorator';
 import { ResponseDto } from '@common/dtos/response.dto';
@@ -6,19 +7,24 @@ import { ResponseMessage } from '@common/enums/response.enum';
 import { CustomPolicyHandler } from '@common/handlers/policy.handler';
 import { User } from '@gen/prisma-class/user';
 import {
-  Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Patch, Post, Put, Query, UseInterceptors
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  UseInterceptors,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth, ApiOkResponse,
-  ApiTags
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CaslAbilityFactory } from '@src/auth/casl-ability.factory/casl-ability.factory';
 import { CheckPolicies } from '@src/auth/decorator/policy.decorator';
 import { PageOptionsDto } from '@src/common/dtos/pagination/page-options.dto';
 import { PermissionAction } from '@src/common/enums/permission.enum';
-import {
-  UserFindAllDto
-} from '@src/user/dto/user.dto';
+import { UserFindAllDto } from '@src/user/dto/user.dto';
 import { generateRepsonseMessage } from './../roles/response';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -62,6 +68,40 @@ export class UsersController {
     //   throw new ForbiddenException("You dont have access to this resource!");
     // }
     return this.usersService.findAll(pageOptionsDto);
+  }
+
+  @Public()
+  @Get('instructor')
+  @ApiPaginatedResponse(UserFindAllDto, true)
+  @CheckPolicies(
+    new CustomPolicyHandler(PermissionAction.Read, PermissionSubject.User),
+  )
+  async findAllInstructor(@Query() pageOptionsDto: PageOptionsDto) {
+    // const ability = await this.abilityFactory.createForUser(req.user)
+    // ability.can()
+    // if (ability.can(PermissionAction.READ, condition)) {
+    //   throw new ForbiddenException("You dont have access to this resource!");
+    // }
+    return this.usersService.findAll(pageOptionsDto, {
+      role: 'instructor',
+    });
+  }
+
+  @Public()
+  @Get('student')
+  @ApiPaginatedResponse(UserFindAllDto, true)
+  @CheckPolicies(
+    new CustomPolicyHandler(PermissionAction.Read, PermissionSubject.User),
+  )
+  async findAllStudent(@Query() pageOptionsDto: PageOptionsDto) {
+    // const ability = await this.abilityFactory.createForUser(req.user)
+    // ability.can()
+    // if (ability.can(PermissionAction.READ, condition)) {
+    //   throw new ForbiddenException("You dont have access to this resource!");
+    // }
+    return this.usersService.findAll(pageOptionsDto, {
+      role: 'student',
+    });
   }
 
   @Get(':id')

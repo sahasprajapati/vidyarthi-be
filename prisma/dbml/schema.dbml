@@ -69,6 +69,9 @@ Table User {
   studentProfileId Int
   teacherProfile TeacherProfile
   teacherProfileId Int
+  cart Cart
+  cartId Int
+  orders Order [not null]
 }
 
 Table StudentProfile {
@@ -179,6 +182,8 @@ Table Course {
   sections Section [not null]
   thumbnail String
   trailer String
+  cart Cart [not null]
+  order Order [not null]
 }
 
 Table courseCategories {
@@ -227,6 +232,7 @@ Table Lecture {
   noteId Int [unique]
   section Section [not null]
   sectionId Int [not null]
+  length String [not null]
   video String [not null]
 }
 
@@ -239,6 +245,22 @@ Table Note {
   lecture Lecture
 }
 
+Table Cart {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  course Course [not null]
+  user User [not null]
+}
+
+Table Order {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  course Course [not null]
+  user User [not null]
+}
+
 Table Instructors {
   teachercoursesId Int [ref: > Course.id]
   instructorsId Int [ref: > User.id]
@@ -247,6 +269,21 @@ Table Instructors {
 Table Students {
   studentcoursesId Int [ref: > Course.id]
   studentsId Int [ref: > User.id]
+}
+
+Table OrderToUser {
+  ordersId Int [ref: > Order.id]
+  userId Int [ref: > User.id]
+}
+
+Table CartToCourse {
+  cartId Int [ref: > Cart.id]
+  courseId Int [ref: > Course.id]
+}
+
+Table CourseToOrder {
+  orderId Int [ref: > Order.id]
+  courseId Int [ref: > Course.id]
 }
 
 Enum SocialProvider {
@@ -292,6 +329,8 @@ Ref: User.roleId > Role.id
 Ref: User.studentProfileId > StudentProfile.id
 
 Ref: User.teacherProfileId > TeacherProfile.id
+
+Ref: User.cartId > Cart.id
 
 Ref: StudentProfile.occupationId > Occupation.id
 
