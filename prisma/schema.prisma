@@ -309,9 +309,9 @@ model Lecture {
 
   section   Section @relation(fields: [sectionId], references: [id])
   sectionId Int
-  length String
+  length String?
   // url video
-  video String
+  video String?
 }
 
 model Note {

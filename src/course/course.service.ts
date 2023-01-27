@@ -37,9 +37,10 @@ export class CourseService {
       data: {
         title: createCourseDto.title,
         subtitle: createCourseDto.subtitle,
+        topic: createCourseDto.topic,
         courseId: courseId,
-        subCategoryId: createCourseDto.subCategoryId,
-        categoryId: createCourseDto.categoryId,
+        subCategoryId: +createCourseDto.subCategoryId,
+        categoryId: +createCourseDto.categoryId,
       },
       include: {
         category: true,
@@ -145,9 +146,9 @@ export class CourseService {
       noteData['noteDescription'] = note.noteDescription;
     if (note.noteFiles) noteData['noteFiles'] = note.noteFiles;
     if (note.noteId) {
-      this.prisma.note.update({
+      await this.prisma.note.update({
         where: {
-          id: note.noteId,
+          id: +note.noteId,
         },
         data: {
           ...noteData,
@@ -164,16 +165,20 @@ export class CourseService {
   }
 
   async lectureUpsert(lecture: Lecture, sectionId: number) {
-    const noteId = await this.noteUpsert({
+    const note = await this.noteUpsert({
       noteDescription: lecture.noteDescription,
       noteFiles: lecture.noteFiles,
-      noteId: lecture.noteId,
+      noteId: +lecture.noteId,
     });
 
     const data: any = {};
 
-    if (noteId) {
-      data['noteId'] = noteId?.id;
+    if (note?.id) {
+      data['note'] = {
+        connect: {
+          id: +note?.id,
+        },
+      };
     }
     if (lecture.name) data['name'] = lecture.name;
     if (lecture.description) data['description'] = lecture.description;
@@ -181,20 +186,29 @@ export class CourseService {
     if (lecture.listOrder) data['listOrder'] = lecture.listOrder;
 
     let newLectureId;
-    if (lecture.noteId) {
-      this.prisma.lecture.update({
+    if (lecture.id) {
+      await this.prisma.lecture.update({
         where: {
-          id: lecture.noteId,
+          id: +lecture.id,
         },
         data: {
           ...data,
+          section: {
+            connect: {
+              id: +sectionId,
+            },
+          },
         },
       });
     } else {
       newLectureId = await this.prisma.lecture.create({
         data: {
           ...data,
-          sectionId: sectionId,
+          section: {
+            connect: {
+              id: +sectionId,
+            },
+          },
         },
       });
     }
@@ -203,32 +217,47 @@ export class CourseService {
   async sectionUpsert(sections: SectionDto[], courseId: number) {
     await Promise.all(
       sections?.map(async (section) => {
-        // Lecture
-        section.lectures?.map(async (lecture) => {
-          await this.lectureUpsert(lecture, section.id);
-        });
-
         // Section
         const data: any = {};
         if (section.name) data['name'] = section.name;
         if (section.listOrder) data['listOrder'] = section.listOrder;
         if (section.id && courseId) {
+         
+
           await this.prisma.section.update({
             where: {
               id: section.id,
             },
             data: {
               ...data,
-              courseId: courseId,
+              Course: {
+                connect: {
+                  id: +courseId,
+                },
+              },
             },
           });
+          await Promise.all(
+            section.lectures?.map(async (lecture) => {
+              await this.lectureUpsert(lecture, section.id);
+            }),
+          );
         } else {
-          await this.prisma.section.create({
+          const newSection = await this.prisma.section.create({
             data: {
               ...data,
-              courseId: courseId as never,
+              Course: {
+                connect: {
+                  id: +courseId,
+                },
+              },
             },
           });
+          await Promise.all(
+            section.lectures?.map(async (lecture) => {
+              await this.lectureUpsert(lecture, newSection.id);
+            }),
+          );
         }
       }),
     );
@@ -245,9 +274,9 @@ export class CourseService {
     if (updateCourseDto.title) data['title'] = updateCourseDto.title;
     if (updateCourseDto.subtitle) data['subtitle'] = updateCourseDto.subtitle;
     if (updateCourseDto.subCategoryId)
-      data['subCategoryId'] = updateCourseDto.subCategoryId;
+      data['subCategoryId'] = +updateCourseDto.subCategoryId;
     if (updateCourseDto.categoryId)
-      data['categoryId'] = updateCourseDto.categoryId;
+      data['categoryId'] = +updateCourseDto.categoryId;
     if (updateCourseDto.topic) data['topic'] = updateCourseDto.topic;
     if (updateCourseDto.language) data['language'] = updateCourseDto.language;
     if (updateCourseDto.subtitleLanguage)
@@ -275,7 +304,7 @@ export class CourseService {
 
     // Lecture
     if (updateCourseDto.sections) {
-      this.sectionUpsert(updateCourseDto.sections, id);
+      await this.sectionUpsert(updateCourseDto.sections, id);
     }
 
     return this.prisma.course.update({

@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Lecture" ALTER COLUMN "video" DROP NOT NULL,
+ALTER COLUMN "length" DROP NOT NULL;

@@ -8,7 +8,10 @@ import { FacebookOauthGuard } from './facebook-oauth.guard';
 
 @Controller('facebook')
 export class FacebookOauthController {
-  constructor(private authService: AuthService, private userService: UsersService) {}
+  constructor(
+    private authService: AuthService,
+    private userService: UsersService,
+  ) {}
 
   @Public()
   @Get()
@@ -16,14 +19,12 @@ export class FacebookOauthController {
   async facebookAuth(@Req() _req, @Res() res: Response) {
     // Guard redirects
     return res.redirect('/');
-
   }
 
   @Public()
   @UseGuards(FacebookOauthGuard)
-  @Get("redirect")
+  @Get('redirect')
   async facebookAuthRedirect(@Req() req: Request, @Res() res: Response) {
-
     let user = await this.authService.validateUser(
       (req?.user as any)?.email,
       null,
@@ -35,13 +36,14 @@ export class FacebookOauthController {
         email: (req.user as any)?.email,
         password: nanoid(),
         passwordResetToken: null,
+        roleId: 2,
       });
     }
     // For now, we'll just show the user object
     const tokens = await this.authService.login(user);
 
-    return res.redirect(`/login?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}&role=${user?.role?.name}`)
+    return res.redirect(
+      `/login?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}&role=${user?.role?.name}`,
+    );
   }
-
-  
 }

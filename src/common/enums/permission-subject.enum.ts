@@ -17,4 +17,6 @@ export enum PermissionSubject {
   'Section' = 'section', 
   'Lecture' = 'lecture', 
   'Note' = 'note', 
+  'Cart' = 'cart', 
+  'Order' = 'order', 
 }

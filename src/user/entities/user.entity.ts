@@ -46,4 +46,7 @@ export class UserEntity implements User {
 
   @ApiProperty()
   passwordResetAt: Date;
+
+  @ApiProperty()
+  cartId: number;
 }

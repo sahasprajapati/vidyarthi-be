@@ -232,8 +232,8 @@ Table Lecture {
   noteId Int [unique]
   section Section [not null]
   sectionId Int [not null]
-  length String [not null]
-  video String [not null]
+  length String
+  video String
 }
 
 Table Note {
