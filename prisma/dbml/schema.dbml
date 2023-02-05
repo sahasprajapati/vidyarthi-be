@@ -66,49 +66,40 @@ Table User {
   teacherCourses Course [not null]
   studentCourses Course [not null]
   studentProfile StudentProfile
-  studentProfileId Int
   teacherProfile TeacherProfile
-  teacherProfileId Int
-  cart Cart
-  cartId Int
   orders Order [not null]
+  wishlist Wishlist
+  cart Cart
 }
 
 Table StudentProfile {
   id Int [pk, increment]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [default: `now()`, not null]
-  dob DateTime [not null]
-  occupation Occupation
-  occupationId Int
+  dob DateTime
+  occupation String
   phone BigInt
   institution String
   currentQualification String
-  highestQualification String [not null]
-  User User [not null]
-  isEmailUpdates Boolean [not null]
-}
-
-Table Occupation {
-  id Int [pk, increment]
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [default: `now()`, not null]
-  name String [not null]
-  StudentProfile StudentProfile [not null]
+  highestQualification String
+  user User
+  userId Int [unique]
+  isEmailUpdates Boolean [not null, default: true]
 }
 
 Table TeacherProfile {
   id Int [pk, increment]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [default: `now()`, not null]
-  title String [not null]
-  biography String [not null]
-  phoneNumber BigInt [not null]
-  notifications TeacherNotification [not null]
-  teacherNotificationId Int [not null]
-  socialProfile SocialProfile [not null]
-  socialProfileId Int [not null]
-  user User [not null]
+  title String
+  biography String
+  phoneNumber BigInt
+  notifications TeacherNotification
+  teacherNotificationId Int
+  socialProfile SocialProfile
+  socialProfileId Int
+  user User
+  userId Int [unique]
 }
 
 Table TeacherNotification {
@@ -182,8 +173,10 @@ Table Course {
   sections Section [not null]
   thumbnail String
   trailer String
-  cart Cart [not null]
   order Order [not null]
+  Wishlist Wishlist [not null]
+  Cart Cart [not null]
+  popularity Int [not null, default: 0]
 }
 
 Table courseCategories {
@@ -245,20 +238,31 @@ Table Note {
   lecture Lecture
 }
 
-Table Cart {
-  id Int [pk, increment]
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [default: `now()`, not null]
-  course Course [not null]
-  user User [not null]
-}
-
 Table Order {
   id Int [pk, increment]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [default: `now()`, not null]
   course Course [not null]
-  user User [not null]
+  user User
+  userId Int [unique]
+}
+
+Table Wishlist {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  course Course [not null]
+  user User
+  userId Int [unique]
+}
+
+Table Cart {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  course Course [not null]
+  user User
+  userId Int [unique]
 }
 
 Table Instructors {
@@ -271,18 +275,18 @@ Table Students {
   studentsId Int [ref: > User.id]
 }
 
-Table OrderToUser {
-  ordersId Int [ref: > Order.id]
-  userId Int [ref: > User.id]
+Table CourseToOrder {
+  orderId Int [ref: > Order.id]
+  courseId Int [ref: > Course.id]
+}
+
+Table CourseToWishlist {
+  wishlistId Int [ref: > Wishlist.id]
+  courseId Int [ref: > Course.id]
 }
 
 Table CartToCourse {
   cartId Int [ref: > Cart.id]
-  courseId Int [ref: > Course.id]
-}
-
-Table CourseToOrder {
-  orderId Int [ref: > Order.id]
   courseId Int [ref: > Course.id]
 }
 
@@ -326,17 +330,13 @@ Ref: RolePermission.roleId > Role.id [delete: Cascade]
 
 Ref: User.roleId > Role.id
 
-Ref: User.studentProfileId > StudentProfile.id
-
-Ref: User.teacherProfileId > TeacherProfile.id
-
-Ref: User.cartId > Cart.id
-
-Ref: StudentProfile.occupationId > Occupation.id
+Ref: StudentProfile.userId - User.id
 
 Ref: TeacherProfile.teacherNotificationId > TeacherNotification.id
 
 Ref: TeacherProfile.socialProfileId > SocialProfile.id
+
+Ref: TeacherProfile.userId - User.id
 
 Ref: Rating.userId > User.id
 
@@ -353,3 +353,9 @@ Ref: Section.courseId > Course.id
 Ref: Lecture.noteId - Note.id
 
 Ref: Lecture.sectionId > Section.id
+
+Ref: Order.userId > User.id
+
+Ref: Wishlist.userId - User.id
+
+Ref: Cart.userId - User.id

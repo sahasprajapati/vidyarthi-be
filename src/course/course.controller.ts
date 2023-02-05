@@ -69,6 +69,38 @@ export class CourseController {
     return this.courseService.findAll(pageOptionsDto);
   }
 
+
+  @Get("suggested/:id")
+  @Public()
+  @ApiPaginatedResponse(Course, true)
+  @CheckPolicies(
+    new CustomPolicyHandler(PermissionAction.Read, PermissionSubject.Course),
+  )
+  async findAllSuggested(@Param("id") id: number, @Query() pageOptionsDto: PageOptionsDto) {
+    // const ability = await this.abilityFactory.createForCourse(req.user)
+    // ability.can()
+    // if (ability.can(PermissionAction.READ, condition)) {
+    //   throw new ForbiddenException("You dont have access to this resource!");
+    // }
+    return this.courseService.findAllSuggested(id, pageOptionsDto);
+  }
+
+  @Get("popular")
+  @Public()
+  @ApiPaginatedResponse(Course, true)
+  @CheckPolicies(
+    new CustomPolicyHandler(PermissionAction.Read, PermissionSubject.Course),
+  )
+  async findAllPopular(@Query() pageOptionsDto: PageOptionsDto) {
+    // const ability = await this.abilityFactory.createForCourse(req.user)
+    // ability.can()
+    // if (ability.can(PermissionAction.READ, condition)) {
+    //   throw new ForbiddenException("You dont have access to this resource!");
+    // }
+    return this.courseService.findAllPopular(pageOptionsDto);
+  }
+
+
   @Public()
   @Get(':id')
   @ApiCustomResponse(Course, true)

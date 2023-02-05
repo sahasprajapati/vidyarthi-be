@@ -42,4 +42,6 @@ export const verifyEntity = async <T>({
         message: ResponseMessage.NotUnique,
       }),
     );
+
+  return user;
 };

@@ -108,6 +108,120 @@ export class CourseService {
     return courses;
   }
 
+  async findAllSuggested(
+    courseId: number,
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<Course>> {
+    const currentCourse = await this.prisma.course.findUnique({
+      where: { id: +courseId },
+    });
+    if (!currentCourse) {
+      throw new Error('Course not found');
+    }
+    currentCourse.categoryId;
+    // Get proper criteria using prisma findMany types
+    // this.prisma.course.findMany();
+    const criteria: Prisma.CourseFindManyArgs = {
+      skip: pageOptionsDto.skip,
+      take: pageOptionsDto.take,
+      orderBy: {
+        popularity: 'desc',
+      },
+      include: {
+        category: true,
+        subCategory: true,
+        instructors: true,
+        sections: {
+          include: {
+            lectures: {
+              include: {
+                note: true,
+              },
+            },
+          },
+        },
+      },
+    };
+    if (pageOptionsDto.filter) {
+      criteria.where = {
+        AND: [
+          { categoryId: currentCourse.categoryId },
+          { id: { not: courseId } },
+        ],
+        // OR: [
+        //   {
+        //     topic: {
+        //       ...paginateFilter(pageOptionsDto.filter),
+        //     },
+        //     title: {
+        //       ...paginateFilter(pageOptionsDto.filter),
+        //     },
+        //     subtitle: {
+        //       ...paginateFilter(pageOptionsDto.filter),
+        //     },
+        //   },
+        // ],
+      };
+    }
+    const courses = await paginate<Course, Prisma.CourseFindManyArgs>(
+      this.prisma.course,
+      criteria,
+      pageOptionsDto,
+    );
+    return courses;
+  }
+
+  async findAllPopular(
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<Course>> {
+    // Get proper criteria using prisma findMany types
+    // this.prisma.course.findMany();
+    const criteria: Prisma.CourseFindManyArgs = {
+      skip: pageOptionsDto.skip,
+      take: pageOptionsDto.take,
+      orderBy: {
+        popularity: 'desc',
+      },
+      include: {
+        category: true,
+        subCategory: true,
+        instructors: true,
+        sections: {
+          include: {
+            lectures: {
+              include: {
+                note: true,
+              },
+            },
+          },
+        },
+      },
+    };
+    if (pageOptionsDto.filter) {
+      criteria.where = {
+        OR: [
+          {
+            topic: {
+              ...paginateFilter(pageOptionsDto.filter),
+            },
+            title: {
+              ...paginateFilter(pageOptionsDto.filter),
+            },
+            subtitle: {
+              ...paginateFilter(pageOptionsDto.filter),
+            },
+          },
+        ],
+      };
+    }
+    const courses = await paginate<Course, Prisma.CourseFindManyArgs>(
+      this.prisma.course,
+      criteria,
+      pageOptionsDto,
+    );
+    return courses;
+  }
+
   async findOne(id: number) {
     await verifyEntity({
       model: this.prisma.course,
@@ -222,8 +336,6 @@ export class CourseService {
         if (section.name) data['name'] = section.name;
         if (section.listOrder) data['listOrder'] = section.listOrder;
         if (section.id && courseId) {
-         
-
           await this.prisma.section.update({
             where: {
               id: section.id,
@@ -351,5 +463,21 @@ export class CourseService {
         },
       },
     });
+  }
+
+  async increaseCoursePopularity(id: number) {
+    const course = await this.prisma.course.findUnique({ where: { id } });
+    if (!course) {
+      throw new Error('Product not found');
+    }
+    const updatedProduct = await this.prisma.course.update({
+      where: { id },
+      data: { popularity: course.popularity + 1 },
+    });
+    return updatedProduct;
+  }
+
+  async handleProductView(id: number) {
+    await this.increaseCoursePopularity(id);
   }
 }

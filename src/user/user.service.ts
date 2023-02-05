@@ -93,6 +93,25 @@ export class UsersService {
             name: true,
           },
         },
+        wishlist: {
+          include: {
+            course: true,
+          },
+        },
+        cart: {
+          include: {
+            course: true,
+          },
+        },
+        orders: {
+          include: {
+            course: true,
+          },
+        },
+        teacherProfile: true,
+        studentProfile: true,
+        studentCourses: true,
+        teacherCourses: true,
         isVerified: true,
       },
     };
@@ -123,6 +142,25 @@ export class UsersService {
             name: true,
           },
         },
+        wishlist: {
+          include: {
+            course: true,
+          },
+        },
+        cart: {
+          include: {
+            course: true,
+          },
+        },
+        orders: {
+          include: {
+            course: true,
+          },
+        },
+        teacherProfile: true,
+        studentProfile: true,
+        studentCourses: true,
+        teacherCourses: true,
         isVerified: true,
       },
     });
@@ -144,6 +182,25 @@ export class UsersService {
             name: true,
           },
         },
+        wishlist: {
+          include: {
+            course: true,
+          },
+        },
+        cart: {
+          include: {
+            course: true,
+          },
+        },
+        orders: {
+          include: {
+            course: true,
+          },
+        },
+        teacherProfile: true,
+        studentProfile: true,
+        studentCourses: true,
+        teacherCourses: true,
         isVerified: true,
       },
     });
@@ -165,6 +222,25 @@ export class UsersService {
             name: true,
           },
         },
+        wishlist: {
+          include: {
+            course: true,
+          },
+        },
+        cart: {
+          include: {
+            course: true,
+          },
+        },
+        orders: {
+          include: {
+            course: true,
+          },
+        },
+        teacherProfile: true,
+        studentProfile: true,
+        studentCourses: true,
+        teacherCourses: true,
         isVerified: true,
       },
     });

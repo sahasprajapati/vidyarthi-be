@@ -88,13 +88,11 @@ model User {
   teacherCourses Course[] @relation("Instructors")
   studentCourses Course[] @relation("Students")
 
-  studentProfile   StudentProfile? @relation(fields: [studentProfileId], references: [id])
-  studentProfileId Int?
-  teacherProfile   TeacherProfile? @relation(fields: [teacherProfileId], references: [id])
-  teacherProfileId Int?
-  cart             Cart?           @relation(fields: [cartId], references: [id])
-  cartId           Int?
-  orders           Order[]
+  studentProfile StudentProfile?
+  teacherProfile TeacherProfile?
+  orders         Order[]
+  wishlist       Wishlist?
+  cart           Cart?
 }
 
 model StudentProfile {
@@ -102,27 +100,17 @@ model StudentProfile {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  dob                  DateTime
-  occupation           Occupation? @relation(fields: [occupationId], references: [id])
-  occupationId         Int?
+  dob                  DateTime?
+  occupation           String?
   phone                BigInt?
   institution          String?
   currentQualification String?
-  highestQualification String
+  highestQualification String?
 
-  User User[]
+  user   User? @relation(fields: [userId], references: [id])
+  userId Int?  @unique
 
-  isEmailUpdates Boolean
-}
-
-model Occupation {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  name String
-
-  StudentProfile StudentProfile[]
+  isEmailUpdates Boolean @default(true)
 }
 
 model TeacherProfile {
@@ -130,16 +118,18 @@ model TeacherProfile {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  title       String
-  biography   String
-  phoneNumber BigInt
+  title       String?
+  biography   String?
+  phoneNumber BigInt?
 
-  notifications         TeacherNotification @relation(fields: [teacherNotificationId], references: [id])
-  teacherNotificationId Int
+  notifications         TeacherNotification? @relation(fields: [teacherNotificationId], references: [id])
+  teacherNotificationId Int?
 
-  socialProfile   SocialProfile @relation(fields: [socialProfileId], references: [id])
-  socialProfileId Int
-  user            User[]
+  socialProfile   SocialProfile? @relation(fields: [socialProfileId], references: [id])
+  socialProfileId Int?
+
+  user   User? @relation(fields: [userId], references: [id])
+  userId Int?  @unique
 }
 
 model TeacherNotification {
@@ -237,15 +227,18 @@ model Course {
   welcomeMessage        String?
   congratulationMessage String?
 
-  instructors User[]    @relation("Instructors")
-  students    User[]    @relation("Students")
+  instructors User[]     @relation("Instructors")
+  students    User[]     @relation("Students")
   ratings     Rating[]
   sections    Section[]
   // Images/Videos URL
   thumbnail   String?
   trailer     String?
-  cart        Cart[]
   order       Order[]
+  Wishlist    Wishlist[]
+  Cart        Cart[]
+
+  popularity Int @default(0)
 }
 
 model Category {
@@ -309,9 +302,9 @@ model Lecture {
 
   section   Section @relation(fields: [sectionId], references: [id])
   sectionId Int
-  length String?
+  length    String?
   // url video
-  video String?
+  video     String?
 }
 
 model Note {
@@ -326,20 +319,32 @@ model Note {
   lecture   Lecture?
 }
 
-model Cart {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  course Course[]
-  user   User[]
-}
-
 model Order {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
   course Course[]
-  user   User[]
+  user   User?    @relation(fields: [userId], references: [id])
+  userId Int?     @unique
+}
+
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  course Course[]
+  user   User?    @relation(fields: [userId], references: [id])
+  userId Int?     @unique
+}
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  course Course[]
+  user   User?    @relation(fields: [userId], references: [id])
+  userId Int?     @unique
 }

@@ -98,22 +98,13 @@ export class AuthService {
     }
   }
 
-  validateJWTUser(userId: number): Promise<User> {
-    return this.prisma.user.findUnique({
-      where: { id: +userId },
-      include: {
-        role: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
+  validateJWTUser(userId: number) {
+    return this.usersService.findOne(userId);
   }
 
   async register(registerDto: RegisterDto) {
-    if(registerDto.password !== registerDto.confirmPassword) {
-      return new BadRequestException("Password do not match");
+    if (registerDto.password !== registerDto.confirmPassword) {
+      return new BadRequestException('Password do not match');
     }
     let user = await this.usersService.findOneByEmail(registerDto.email);
     if (user) {

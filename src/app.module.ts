@@ -19,6 +19,8 @@ import { CourseModule } from './course/course.module';
 import { CategoryModule } from './category/category.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { ProfileModule } from './profile/profile.module';
+import { RatingModule } from './review/rating.module';
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { join } from 'path';
     PasswordModule,
     CourseModule,
     CategoryModule,
+    ProfileModule,
+    RatingModule,
   ],
   controllers: [AppController],
   providers: [

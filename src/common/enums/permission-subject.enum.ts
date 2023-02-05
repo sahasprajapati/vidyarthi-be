@@ -5,7 +5,6 @@ export enum PermissionSubject {
   'Role' = 'role', 
   'User' = 'user', 
   'StudentProfile' = 'studentprofile', 
-  'Occupation' = 'occupation', 
   'TeacherProfile' = 'teacherprofile', 
   'TeacherNotification' = 'teachernotification', 
   'SocialProfile' = 'socialprofile', 
@@ -17,6 +16,7 @@ export enum PermissionSubject {
   'Section' = 'section', 
   'Lecture' = 'lecture', 
   'Note' = 'note', 
-  'Cart' = 'cart', 
   'Order' = 'order', 
+  'Wishlist' = 'wishlist', 
+  'Cart' = 'cart', 
 }

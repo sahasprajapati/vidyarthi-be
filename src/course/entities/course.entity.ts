@@ -54,4 +54,7 @@ export class CourseEntity implements Course {
 
   @ApiProperty()
   id: number;
+
+  @ApiProperty()
+  popularity: number;
 }
