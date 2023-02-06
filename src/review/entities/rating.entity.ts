@@ -12,6 +12,8 @@ import { TeacherNotification } from './../../_gen/prisma-class/teacher_notificat
 
 export class RatingEntity implements Rating {
   @ApiProperty()
+  rate: number;
+  @ApiProperty()
   id: number;
 
   @ApiProperty()

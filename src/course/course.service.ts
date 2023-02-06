@@ -59,7 +59,15 @@ export class CourseService {
     });
   }
 
-  async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<Course>> {
+  async findAll(pageOptionsDto: PageOptionsDto): Promise<
+    PageDto<
+      Course & {
+        ratingsCount: number;
+        ratingsUserCount: number;
+        ratingsAvg: number;
+      }
+    >
+  > {
     // Get proper criteria using prisma findMany types
     // this.prisma.course.findMany();
     const criteria: Prisma.CourseFindManyArgs = {
@@ -72,6 +80,7 @@ export class CourseService {
         category: true,
         subCategory: true,
         instructors: true,
+        ratings: true,
         sections: {
           include: {
             lectures: {
@@ -100,18 +109,47 @@ export class CourseService {
         ],
       };
     }
-    const courses = await paginate<Course, Prisma.CourseFindManyArgs>(
-      this.prisma.course,
-      criteria,
-      pageOptionsDto,
-    );
-    return courses;
+    const courses = await paginate<
+      Course & {
+        ratingsCount: number;
+        ratingsUserCount: number;
+        ratingsAvg: number;
+      },
+      Prisma.CourseFindManyArgs
+    >(this.prisma.course, criteria, pageOptionsDto);
+
+    const data = courses.data.map((course) => {
+      const ratings = course.ratings;
+      const ratingsUserCount = ratings.length;
+      const ratingsAvg =
+        ratings?.reduce((acc, rating) => acc + rating?.rate ?? 0, 0) /
+        ratings?.length;
+
+      const usersCount = new Set(ratings.map((rating) => rating.userId)).size;
+
+      return {
+        ...course,
+        ratingsUserCount,
+        usersCount,
+        ratingsAvg :ratingsAvg ?? 0,
+      };
+    });
+
+    return { ...courses, data: data };
   }
 
   async findAllSuggested(
     courseId: number,
     pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<Course>> {
+  ): Promise<
+    PageDto<
+      Course & {
+        ratingsCount: number;
+        ratingsUserCount: number;
+        ratingsAvg: number;
+      }
+    >
+  > {
     const currentCourse = await this.prisma.course.findUnique({
       where: { id: +courseId },
     });
@@ -131,6 +169,7 @@ export class CourseService {
         category: true,
         subCategory: true,
         instructors: true,
+        ratings: true,
         sections: {
           include: {
             lectures: {
@@ -163,17 +202,43 @@ export class CourseService {
         // ],
       };
     }
-    const courses = await paginate<Course, Prisma.CourseFindManyArgs>(
-      this.prisma.course,
-      criteria,
-      pageOptionsDto,
-    );
-    return courses;
+    const courses = await paginate<
+      Course & {
+        ratingsCount: number;
+        ratingsUserCount: number;
+        ratingsAvg: number;
+      },
+      Prisma.CourseFindManyArgs
+    >(this.prisma.course, criteria, pageOptionsDto);
+    const data = courses.data.map((course) => {
+      const ratings = course.ratings;
+      const ratingsUserCount = ratings.length;
+      const ratingsAvg =
+        ratings?.reduce((acc, rating) => acc + rating?.rate ?? 0, 0) /
+        ratings?.length;
+
+      const usersCount = new Set(ratings.map((rating) => rating.userId)).size;
+
+      return {
+        ...course,
+        ratingsUserCount,
+        usersCount,
+        ratingsAvg :ratingsAvg ?? 0,
+      };
+    });
+
+    return { ...courses, data: data };
   }
 
-  async findAllPopular(
-    pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<Course>> {
+  async findAllPopular(pageOptionsDto: PageOptionsDto): Promise<
+    PageDto<
+      Course & {
+        ratingsCount: number;
+        ratingsUserCount: number;
+        ratingsAvg: number;
+      }
+    >
+  > {
     // Get proper criteria using prisma findMany types
     // this.prisma.course.findMany();
     const criteria: Prisma.CourseFindManyArgs = {
@@ -186,6 +251,7 @@ export class CourseService {
         category: true,
         subCategory: true,
         instructors: true,
+        ratings: true,
         sections: {
           include: {
             lectures: {
@@ -214,12 +280,32 @@ export class CourseService {
         ],
       };
     }
-    const courses = await paginate<Course, Prisma.CourseFindManyArgs>(
-      this.prisma.course,
-      criteria,
-      pageOptionsDto,
-    );
-    return courses;
+    const courses = await paginate<
+      Course & {
+        ratingsCount: number;
+        ratingsUserCount: number;
+        ratingsAvg: number;
+      },
+      Prisma.CourseFindManyArgs
+    >(this.prisma.course, criteria, pageOptionsDto);
+    const data = courses.data.map((course) => {
+      const ratings = course.ratings;
+      const ratingsUserCount = ratings.length;
+      const ratingsAvg =
+        ratings?.reduce((acc, rating) => acc + rating?.rate ?? 0, 0) /
+        ratings?.length;
+
+      const usersCount = new Set(ratings.map((rating) => rating.userId)).size;
+
+      return {
+        ...course,
+        ratingsUserCount,
+        usersCount,
+        ratingsAvg :ratingsAvg ?? 0,
+      };
+    });
+
+    return { ...courses, data: data };
   }
 
   async findOne(id: number) {
@@ -228,7 +314,7 @@ export class CourseService {
       name: 'Course',
       id,
     });
-    return this.prisma.course.findFirst({
+    const course = await this.prisma.course.findFirst({
       where: {
         id: +id,
       },
@@ -236,6 +322,7 @@ export class CourseService {
         category: true,
         subCategory: true,
         instructors: true,
+        ratings: true,
         sections: {
           include: {
             lectures: {
@@ -247,6 +334,21 @@ export class CourseService {
         },
       },
     });
+
+    const ratings = course.ratings;
+    const ratingsUserCount = ratings.length;
+    const ratingsAvg =
+      ratings?.reduce((acc, rating) => acc + rating?.rate ?? 0, 0) /
+      ratings?.length;
+
+    const usersCount = new Set(ratings.map((rating) => rating.userId)).size;
+
+    return {
+      ...course,
+      ratingsUserCount: ratingsUserCount,
+      ratingsAvg: ratingsAvg ?? 0,
+      usersCount: usersCount,
+    };
   }
 
   async noteUpsert(note: {
