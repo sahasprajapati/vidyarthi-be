@@ -118,7 +118,7 @@ export class CourseService {
       Prisma.CourseFindManyArgs
     >(this.prisma.course, criteria, pageOptionsDto);
 
-    const data = courses.data.map((course) => {
+    const data = courses.data.map((course: any) => {
       const ratings = course.ratings;
       const ratingsUserCount = ratings.length;
       const ratingsAvg =
@@ -131,7 +131,7 @@ export class CourseService {
         ...course,
         ratingsUserCount,
         usersCount,
-        ratingsAvg :ratingsAvg ?? 0,
+        ratingsAvg: ratingsAvg ?? 0,
       };
     });
 
@@ -210,7 +210,7 @@ export class CourseService {
       },
       Prisma.CourseFindManyArgs
     >(this.prisma.course, criteria, pageOptionsDto);
-    const data = courses.data.map((course) => {
+    const data = courses.data.map((course: any) => {
       const ratings = course.ratings;
       const ratingsUserCount = ratings.length;
       const ratingsAvg =
@@ -223,7 +223,7 @@ export class CourseService {
         ...course,
         ratingsUserCount,
         usersCount,
-        ratingsAvg :ratingsAvg ?? 0,
+        ratingsAvg: ratingsAvg ?? 0,
       };
     });
 
@@ -288,7 +288,7 @@ export class CourseService {
       },
       Prisma.CourseFindManyArgs
     >(this.prisma.course, criteria, pageOptionsDto);
-    const data = courses.data.map((course) => {
+    const data = courses.data.map((course: any) => {
       const ratings = course.ratings;
       const ratingsUserCount = ratings.length;
       const ratingsAvg =
@@ -301,7 +301,7 @@ export class CourseService {
         ...course,
         ratingsUserCount,
         usersCount,
-        ratingsAvg :ratingsAvg ?? 0,
+        ratingsAvg: ratingsAvg ?? 0,
       };
     });
 
