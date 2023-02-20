@@ -26,7 +26,7 @@ export class CreateStudentProfileDto {
   occupation?: string;
 
   @ApiProperty({ nullable: true })
-  phone?: bigint;
+  phone?: string;
 
   @ApiProperty({ nullable: true })
   institution?: string;
@@ -52,7 +52,7 @@ export class CreateTeacherProfileDto {
   biography?: string;
 
   @ApiProperty({ nullable: true })
-  phoneNumber?: bigint;
+  phoneNumber?: string;
 
   @ApiProperty({ nullable: true })
   socialProfile?: SocialProfileDto;
@@ -71,4 +71,45 @@ export class CreateOrderDto {
 export class CreateCartDto {
   @ApiProperty()
   courseIds: string[];
+}
+
+
+
+
+export class UpdateProfileDto {
+  @ApiProperty({nullable : true})
+  dob?: Date;
+
+  @ApiProperty({nullable : true})
+  occupation?: string;
+
+  @ApiProperty({ nullable: true })
+  phone?: string;
+
+  @ApiProperty({ nullable: true })
+  institution?: string;
+
+  @ApiProperty({ nullable: true })
+  currentQualification?: string;
+
+  @ApiProperty({ nullable: true })
+  highestQualification?: string;
+
+  @ApiProperty({ nullable: true })
+  isEmailUpdates?: boolean;
+
+  @ApiProperty({nullable : true})
+  teacherNotificationTypes?: TEACHER_NOTIFICATION_TYPE[];
+
+  @ApiProperty({ nullable: true })
+  title?: string;
+
+  @ApiProperty({ nullable: true })
+  biography?: string;
+
+  @ApiProperty({ nullable: true })
+  phoneNumber?: string;
+
+  @ApiProperty({ nullable: true })
+  socialProfile?: SocialProfileDto;
 }

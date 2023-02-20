@@ -64,7 +64,7 @@ Table User {
   socialProvider SocialProvider [not null, default: 'NONE']
   Rating Rating [not null]
   teacherCourses Course [not null]
-  studentCourses Course [not null]
+  coursesOnStudents CoursesOnStudents [not null]
   studentProfile StudentProfile
   teacherProfile TeacherProfile
   orders Order [not null]
@@ -72,13 +72,37 @@ Table User {
   cart Cart
 }
 
+Table CoursesOnStudents {
+  course Course [not null]
+  courseId Int [not null]
+  student User [not null]
+  studentId Int [not null]
+  assignedAt DateTime [default: `now()`, not null]
+  progress Progress [not null]
+  progressId Int [not null]
+
+  indexes {
+    (courseId, studentId) [pk]
+  }
+}
+
+Table Progress {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  completedSections Section [not null]
+  progressPercentage Int [not null]
+  coursesOnStudents CoursesOnStudents [not null]
+}
+
 Table StudentProfile {
   id Int [pk, increment]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [default: `now()`, not null]
+  image String
   dob DateTime
   occupation String
-  phone BigInt
+  phone String
   institution String
   currentQualification String
   highestQualification String
@@ -91,23 +115,14 @@ Table TeacherProfile {
   id Int [pk, increment]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [default: `now()`, not null]
+  image String
   title String
   biography String
-  phoneNumber BigInt
-  notifications TeacherNotification
-  teacherNotificationId Int
+  phoneNumber String
+  notifications TEACHER_NOTIFICATION_TYPE[] [not null]
   socialProfile SocialProfile
-  socialProfileId Int
   user User
   userId Int [unique]
-}
-
-Table TeacherNotification {
-  id Int [pk, increment]
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [default: `now()`, not null]
-  notifications TEACHER_NOTIFICATION_TYPE[] [not null]
-  TeacherProfile TeacherProfile [not null]
 }
 
 Table SocialProfile {
@@ -122,6 +137,7 @@ Table SocialProfile {
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [default: `now()`, not null]
   TeacherProfile TeacherProfile [not null]
+  teacherProfileId Int [unique, not null]
 }
 
 Table Transaction {
@@ -169,7 +185,7 @@ Table Course {
   welcomeMessage String
   congratulationMessage String
   instructors User [not null]
-  students User [not null]
+  coursesOnStudents CoursesOnStudents [not null]
   ratings Rating [not null]
   sections Section [not null]
   thumbnail String
@@ -213,6 +229,7 @@ Table Section {
   updatedAt DateTime [default: `now()`, not null]
   Course Course
   courseId Int
+  progress Progress [not null]
 }
 
 Table Lecture {
@@ -243,9 +260,10 @@ Table Order {
   id Int [pk, increment]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [default: `now()`, not null]
+  total Int [not null, default: 0]
   course Course [not null]
   user User
-  userId Int [unique]
+  userId Int
 }
 
 Table Wishlist {
@@ -271,9 +289,9 @@ Table Instructors {
   instructorsId Int [ref: > User.id]
 }
 
-Table Students {
-  studentcoursesId Int [ref: > Course.id]
-  studentsId Int [ref: > User.id]
+Table ProgressToSection {
+  completedsectionsId Int [ref: > Section.id]
+  progressId Int [ref: > Progress.id]
 }
 
 Table CourseToOrder {
@@ -331,13 +349,17 @@ Ref: RolePermission.roleId > Role.id [delete: Cascade]
 
 Ref: User.roleId > Role.id
 
+Ref: CoursesOnStudents.courseId > Course.id
+
+Ref: CoursesOnStudents.studentId > User.id
+
+Ref: CoursesOnStudents.progressId > Progress.id
+
 Ref: StudentProfile.userId - User.id
 
-Ref: TeacherProfile.teacherNotificationId > TeacherNotification.id
-
-Ref: TeacherProfile.socialProfileId > SocialProfile.id
-
 Ref: TeacherProfile.userId - User.id
+
+Ref: SocialProfile.teacherProfileId - TeacherProfile.id
 
 Ref: Rating.userId > User.id
 

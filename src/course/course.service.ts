@@ -80,6 +80,7 @@ export class CourseService {
         category: true,
         subCategory: true,
         instructors: true,
+        coursesOnStudents: true,
         ratings: true,
         sections: {
           include: {
@@ -94,6 +95,97 @@ export class CourseService {
     };
     if (pageOptionsDto.filter) {
       criteria.where = {
+        OR: [
+          {
+            topic: {
+              ...paginateFilter(pageOptionsDto.filter),
+            },
+            title: {
+              ...paginateFilter(pageOptionsDto.filter),
+            },
+            subtitle: {
+              ...paginateFilter(pageOptionsDto.filter),
+            },
+          },
+        ],
+      };
+    }
+    const courses = await paginate<
+      Course & {
+        ratingsCount: number;
+        ratingsUserCount: number;
+        ratingsAvg: number;
+      },
+      Prisma.CourseFindManyArgs
+    >(this.prisma.course, criteria, pageOptionsDto);
+
+    const data = courses.data.map((course: any) => {
+      const ratings = course.ratings;
+      const ratingsUserCount = ratings.length;
+      const ratingsAvg =
+        ratings?.reduce((acc, rating) => acc + rating?.rate ?? 0, 0) /
+        ratings?.length;
+
+      const usersCount = new Set(ratings.map((rating) => rating.userId)).size;
+
+      return {
+        ...course,
+        ratingsUserCount,
+        usersCount,
+        ratingsAvg: ratingsAvg ?? 0,
+      };
+    });
+
+    return { ...courses, data: data };
+  }
+
+  async findAllMyCourse(
+    id: number,
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<
+    PageDto<
+      Course & {
+        ratingsCount: number;
+        ratingsUserCount: number;
+        ratingsAvg: number;
+      }
+    >
+  > {
+    // Get proper criteria using prisma findMany types
+    // this.prisma.course.findMany();
+    const criteria: Prisma.CourseFindManyArgs = {
+      where: {
+        coursesOnStudents: {
+          some: {
+            studentId: +id,
+          },
+        },
+      },
+      skip: pageOptionsDto.skip,
+      take: pageOptionsDto.take,
+      orderBy: {
+        createdAt: pageOptionsDto.order,
+      },
+      include: {
+        category: true,
+        subCategory: true,
+        instructors: true,
+        coursesOnStudents: true,
+        ratings: true,
+        sections: {
+          include: {
+            lectures: {
+              include: {
+                note: true,
+              },
+            },
+          },
+        },
+      },
+    };
+    if (pageOptionsDto.filter) {
+      criteria.where = {
+        ...criteria.where,
         OR: [
           {
             topic: {
@@ -170,6 +262,7 @@ export class CourseService {
         subCategory: true,
         instructors: true,
         ratings: true,
+        coursesOnStudents: true,
         sections: {
           include: {
             lectures: {
@@ -252,6 +345,7 @@ export class CourseService {
         subCategory: true,
         instructors: true,
         ratings: true,
+        coursesOnStudents: true,
         sections: {
           include: {
             lectures: {
@@ -322,7 +416,12 @@ export class CourseService {
         category: true,
         subCategory: true,
         instructors: true,
-        ratings: true,
+        ratings: {
+          include: {
+            ratedBy: true,
+          },
+        },
+        coursesOnStudents: true,
         sections: {
           include: {
             lectures: {
@@ -343,6 +442,7 @@ export class CourseService {
 
     const usersCount = new Set(ratings.map((rating) => rating.userId)).size;
 
+    await this.handleProductView(+id);
     return {
       ...course,
       ratingsUserCount: ratingsUserCount,
@@ -400,6 +500,7 @@ export class CourseService {
     if (lecture.description) data['description'] = lecture.description;
     if (lecture.video) data['video'] = lecture.video;
     if (lecture.listOrder) data['listOrder'] = lecture.listOrder;
+    if (lecture.length) data['length'] = lecture.length;
 
     let newLectureId;
     if (lecture.id) {
@@ -504,6 +605,7 @@ export class CourseService {
     if (updateCourseDto.trailer) data['trailer'] = updateCourseDto.trailer;
     if (updateCourseDto.thumbnail)
       data['thumbnail'] = updateCourseDto.thumbnail;
+    if (updateCourseDto.price) data['price'] = +updateCourseDto.price;
 
     if (updateCourseDto.welcomeMessage)
       data['welcomeMessage'] = updateCourseDto.welcomeMessage;

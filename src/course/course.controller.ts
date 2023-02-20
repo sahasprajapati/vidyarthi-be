@@ -15,7 +15,7 @@ import {
   Patch,
   Post,
   Put,
-  Query, UseInterceptors
+  Query, Req, UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CaslAbilityFactory } from '@src/auth/casl-ability.factory/casl-ability.factory';
@@ -67,6 +67,21 @@ export class CourseController {
     //   throw new ForbiddenException("You dont have access to this resource!");
     // }
     return this.courseService.findAll(pageOptionsDto);
+  }
+
+
+  @Get("me")
+  @ApiPaginatedResponse(Course, true)
+  @CheckPolicies(
+    new CustomPolicyHandler(PermissionAction.Read, PermissionSubject.Course),
+  )
+  async findAllMyCourse(@Req() req,@Query() pageOptionsDto: PageOptionsDto) {
+    // const ability = await this.abilityFactory.createForCourse(req.user)
+    // ability.can()
+    // if (ability.can(PermissionAction.READ, condition)) {
+    //   throw new ForbiddenException("You dont have access to this resource!");
+    // }
+    return this.courseService.findAllMyCourse(  +req?.user?.id,pageOptionsDto);
   }
 
 

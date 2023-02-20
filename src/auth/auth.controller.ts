@@ -18,6 +18,7 @@ import { JwtAuthGuard } from './decorator/jwt-auth.guard';
 import { CheckPolicies } from './decorator/policy.decorator';
 import { PoliciesGuard } from './decorator/policy.guard';
 import { Public } from './decorator/public.decorator';
+import { ChangePasswordDto } from './dto/changePassword.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshToken } from './dto/refresh.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -37,6 +38,13 @@ export class AuthController {
   async login(@Body() login: LoginDto, @Request() req) {
     return {
       data: await this.authService.login(req.user),
+    };
+  }
+
+  @Post('change-password')
+  async changePassword(@Body() passwordDto: ChangePasswordDto, @Request() req) {
+    return {
+      data: await this.authService.changePassword(req.user.id, passwordDto),
     };
   }
 

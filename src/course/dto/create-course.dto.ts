@@ -61,6 +61,9 @@ export class CreateCourseDto {
   @ApiProperty()
   level: Level;
 
+  @ApiProperty()
+  price: number;
+
   //Duration
   @ApiProperty()
   time: string;

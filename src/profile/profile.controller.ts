@@ -1,4 +1,3 @@
-import { Wishlist } from './../_gen/prisma-class/wishlist';
 import { ApiCustomResponse } from '@common/decorators/api-custom-response.decorator';
 import { ResponseDto } from '@common/dtos/response.dto';
 import { PermissionSubject } from '@common/enums/permission-subject.enum';
@@ -22,10 +21,9 @@ import { PermissionAction } from '@src/common/enums/permission.enum';
 import { UserFindAllDto } from '@src/user/dto/user.dto';
 import { UserEntity } from '@src/user/entities/user.entity';
 import { generateRepsonseMessage } from './../roles/response';
+import { UpdateProfileDto } from './dto/create-profile.dto';
 import {
   UpdateCartDto,
-  UpdateOrderDto,
-  UpdateStudentProfileDto,
   UpdateTeacherProfileDto,
   UpdateWishlistDto,
 } from './dto/update-profile.dto';
@@ -41,7 +39,7 @@ export class ProfileController {
     private abilityFactory: CaslAbilityFactory,
   ) {}
 
-  @Patch('student/:id')
+  @Patch('/:id')
   @ApiCustomResponse(UserFindAllDto, true)
   @CheckPolicies(
     new CustomPolicyHandler(PermissionAction.Update, PermissionSubject.User),
@@ -49,35 +47,35 @@ export class ProfileController {
   @ApiOkResponse({ type: UserEntity })
   async updateStudent(
     @Param('id') id: string,
-    @Body() updateUserDto: UpdateStudentProfileDto,
+    @Body() updateUserDto: UpdateProfileDto,
   ) {
     return new ResponseDto(
       generateRepsonseMessage({
         model: 'Profile',
         message: ResponseMessage.Update,
       }),
-      await this.profileService.updateStudent(+id, updateUserDto),
+      await this.profileService.updateProfile(+id, updateUserDto),
     );
   }
 
-  @Patch('teacher/:id')
-  @ApiCustomResponse(UserFindAllDto, true)
-  @CheckPolicies(
-    new CustomPolicyHandler(PermissionAction.Update, PermissionSubject.User),
-  )
-  @ApiOkResponse({ type: UserEntity })
-  async updateTeacher(
-    @Param('id') id: string,
-    @Body() updateTeacherDto: UpdateTeacherProfileDto,
-  ) {
-    return new ResponseDto(
-      generateRepsonseMessage({
-        model: 'Profile',
-        message: ResponseMessage.Update,
-      }),
-      await this.profileService.updateTeacher(+id, updateTeacherDto),
-    );
-  }
+  // @Patch('teacher/:id')
+  // @ApiCustomResponse(UserFindAllDto, true)
+  // @CheckPolicies(
+  //   new CustomPolicyHandler(PermissionAction.Update, PermissionSubject.User),
+  // )
+  // @ApiOkResponse({ type: UserEntity })
+  // async updateTeacher(
+  //   @Param('id') id: string,
+  //   @Body() updateTeacherDto: UpdateTeacherProfileDto,
+  // ) {
+  //   return new ResponseDto(
+  //     generateRepsonseMessage({
+  //       model: 'Profile',
+  //       message: ResponseMessage.Update,
+  //     }),
+  //     await this.profileService.updateTeacher(+id, updateTeacherDto),
+  //   );
+  // }
 
   @Patch('cart/:id')
   @ApiCustomResponse(UserFindAllDto, true)
@@ -90,7 +88,6 @@ export class ProfileController {
     @Body() updateTeacherDto: UpdateTeacherProfileDto,
     @Req() req: any,
   ) {
-    console.log('Sahas user', req.user);
     return new ResponseDto(
       generateRepsonseMessage({
         model: 'Profile',
@@ -146,16 +143,13 @@ export class ProfileController {
     new CustomPolicyHandler(PermissionAction.Update, PermissionSubject.Order),
   )
   @ApiOkResponse({ type: UserEntity })
-  async updateSelfOrder(
-    @Body() updateOrderDto: UpdateOrderDto,
-    @Req() req: any,
-  ) {
+  async updateSelfOrder(@Req() req: any) {
     return new ResponseDto(
       generateRepsonseMessage({
         model: 'Order',
         message: ResponseMessage.Update,
       }),
-      await this.profileService.updateOrder(+req?.user?.id, updateOrderDto),
+      await this.profileService.updateOrder(+req?.user?.id),
     );
   }
   @Put('cart')
@@ -195,6 +189,22 @@ export class ProfileController {
         +req?.user?.id,
         updateWishlistDto,
       ),
+    );
+  }
+
+  @Get('cart')
+  @ApiCustomResponse(UserFindAllDto, true)
+  @CheckPolicies(
+    new CustomPolicyHandler(PermissionAction.Read, PermissionSubject.User),
+  )
+  @ApiOkResponse({ type: UserEntity })
+  async fetchCart(@Req() req: any) {
+    return new ResponseDto(
+      generateRepsonseMessage({
+        model: 'Cart',
+        message: ResponseMessage.Read,
+      }),
+      await this.profileService.getCart(+req?.user?.id),
     );
   }
 }

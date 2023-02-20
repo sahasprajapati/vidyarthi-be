@@ -10,6 +10,7 @@ import { Permission, Prisma, User } from '@prisma/client';
 import { SecurityConfig } from '@src/configs';
 import { PrismaService } from '@src/prisma/prisma.service';
 import { UsersService } from '@src/user/user.service';
+import { ChangePasswordDto } from './dto/changePassword.dto';
 import { RegisterDto } from './dto/register.dto';
 import { Token } from './dto/token.dto';
 
@@ -123,5 +124,27 @@ export class AuthService {
       }),
       role: newUser?.role?.name,
     };
+  }
+
+  async changePassword(id: number, passwordDto: ChangePasswordDto) {
+    if (passwordDto.newPassword !== passwordDto.rePassword) {
+      throw new BadRequestException('Passwords do not match');
+    }
+    const user = await this.prisma.user.findUnique({ where: { id: +id } });
+
+    if (!user) throw new BadRequestException('User does not exist');
+    if (user?.password !== passwordDto.password) {
+      throw new BadRequestException('Password does not match');
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: {
+        id: +id,
+      },
+      data: {
+        password: passwordDto.newPassword,
+      },
+    });
+    return updatedUser;
   }
 }

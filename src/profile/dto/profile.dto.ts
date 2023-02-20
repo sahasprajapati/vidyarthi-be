@@ -20,7 +20,7 @@ export class StudentProfileDto {
   occupation: Occupation;
 
   @ApiProperty()
-  phone: bigint;
+  phone: string;
 
   @ApiProperty()
   institution: string;
@@ -64,7 +64,7 @@ export class TeacherProfileDto {
   biography: string;
 
   @ApiProperty()
-  phoneNumber: bigint;
+  phoneNumber: string;
 
   @ApiProperty()
   socialProfile: SocialProfile;

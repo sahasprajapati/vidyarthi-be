@@ -85,8 +85,8 @@ model User {
 
   Rating Rating[]
 
-  teacherCourses Course[] @relation("Instructors")
-  studentCourses Course[] @relation("Students")
+  teacherCourses    Course[]            @relation("Instructors")
+  coursesOnStudents CoursesOnStudents[]
 
   studentProfile StudentProfile?
   teacherProfile TeacherProfile?
@@ -95,14 +95,38 @@ model User {
   cart           Cart?
 }
 
+model CoursesOnStudents {
+  course     Course   @relation(fields: [courseId], references: [id])
+  courseId   Int
+  student    User     @relation(fields: [studentId], references: [id])
+  studentId  Int
+  assignedAt DateTime @default(now())
+
+  progress   Progress @relation(fields: [progressId], references: [id])
+  progressId Int
+
+  @@id([courseId, studentId])
+}
+
+model Progress {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  completedSections  Section[]
+  progressPercentage Int
+  coursesOnStudents  CoursesOnStudents[]
+}
+
 model StudentProfile {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
+  image                String?
   dob                  DateTime?
   occupation           String?
-  phone                BigInt?
+  phone                String?
   institution          String?
   currentQualification String?
   highestQualification String?
@@ -118,27 +142,17 @@ model TeacherProfile {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
+  image       String?
   title       String?
   biography   String?
-  phoneNumber BigInt?
+  phoneNumber String?
 
-  notifications         TeacherNotification? @relation(fields: [teacherNotificationId], references: [id])
-  teacherNotificationId Int?
+  notifications TEACHER_NOTIFICATION_TYPE[]
 
-  socialProfile   SocialProfile? @relation(fields: [socialProfileId], references: [id])
-  socialProfileId Int?
+  socialProfile SocialProfile?
 
   user   User? @relation(fields: [userId], references: [id])
   userId Int?  @unique
-}
-
-model TeacherNotification {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  notifications  TEACHER_NOTIFICATION_TYPE[]
-  TeacherProfile TeacherProfile[]
 }
 
 enum TEACHER_NOTIFICATION_TYPE {
@@ -163,7 +177,8 @@ model SocialProfile {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  TeacherProfile TeacherProfile[]
+  TeacherProfile   TeacherProfile @relation(fields: [teacherProfileId], references: [id])
+  teacherProfileId Int            @unique
 }
 
 model Transaction {
@@ -228,16 +243,16 @@ model Course {
   welcomeMessage        String?
   congratulationMessage String?
 
-  instructors User[]     @relation("Instructors")
-  students    User[]     @relation("Students")
-  ratings     Rating[]
-  sections    Section[]
+  instructors       User[]              @relation("Instructors")
+  coursesOnStudents CoursesOnStudents[]
+  ratings           Rating[]
+  sections          Section[]
   // Images/Videos URL
-  thumbnail   String?
-  trailer     String?
-  order       Order[]
-  Wishlist    Wishlist[]
-  Cart        Cart[]
+  thumbnail         String?
+  trailer           String?
+  order             Order[]
+  Wishlist          Wishlist[]
+  Cart              Cart[]
 
   popularity Int @default(0)
 }
@@ -288,6 +303,8 @@ model Section {
   updatedAt DateTime  @default(now()) @updatedAt
   Course    Course?   @relation(fields: [courseId], references: [id])
   courseId  Int?
+
+  progress Progress[]
 }
 
 model Lecture {
@@ -325,9 +342,10 @@ model Order {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
+  total  Int      @default(0)
   course Course[]
   user   User?    @relation(fields: [userId], references: [id])
-  userId Int?     @unique
+  userId Int?
 }
 
 model Wishlist {

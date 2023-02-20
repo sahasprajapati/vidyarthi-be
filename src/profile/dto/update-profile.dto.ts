@@ -13,6 +13,8 @@ export class UpdateStudentProfileDto extends PartialType(
 export class UpdateTeacherProfileDto extends PartialType(
   CreateTeacherProfileDto,
 ) {}
+
+
 export class UpdateWishlistDto extends PartialType(CreateWishlistDto) {}
 export class UpdateCartDto extends PartialType(CreateCartDto) {}
 export class UpdateOrderDto extends PartialType(CreateOrderDto) {}
