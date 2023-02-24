@@ -105,6 +105,8 @@ model CoursesOnStudents {
   progress   Progress @relation(fields: [progressId], references: [id])
   progressId Int
 
+  achievement Achievement?
+
   @@id([courseId, studentId])
 }
 
@@ -116,6 +118,19 @@ model Progress {
   completedSections  Section[]
   progressPercentage Int
   coursesOnStudents  CoursesOnStudents[]
+}
+
+model Achievement {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  image                      String
+  coursesOnStudents          CoursesOnStudents @relation(fields: [coursesOnStudentsCourseId, coursesOnStudentsStudentId], references: [courseId, studentId])
+  coursesOnStudentsCourseId  Int
+  coursesOnStudentsStudentId Int
+
+  @@unique([coursesOnStudentsCourseId, coursesOnStudentsStudentId])
 }
 
 model StudentProfile {

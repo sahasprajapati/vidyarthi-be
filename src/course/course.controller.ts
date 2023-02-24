@@ -116,6 +116,22 @@ export class CourseController {
   }
 
 
+
+  @Get('me/:id')
+  @ApiCustomResponse(Course, true)
+  @CheckPolicies(
+    new CustomPolicyHandler(PermissionAction.Read, PermissionSubject.Course),
+  )
+  async findMyOne(@Param('id') id: string) {
+    return new ResponseDto(
+      generateRepsonseMessage({
+        model: 'Course',
+        message: ResponseMessage.Read,
+      }),
+      await this.courseService.findMyOne(+id),
+    );
+  }
+
   @Public()
   @Get(':id')
   @ApiCustomResponse(Course, true)

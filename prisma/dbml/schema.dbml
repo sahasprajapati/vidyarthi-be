@@ -80,6 +80,7 @@ Table CoursesOnStudents {
   assignedAt DateTime [default: `now()`, not null]
   progress Progress [not null]
   progressId Int [not null]
+  achievement Achievement
 
   indexes {
     (courseId, studentId) [pk]
@@ -93,6 +94,20 @@ Table Progress {
   completedSections Section [not null]
   progressPercentage Int [not null]
   coursesOnStudents CoursesOnStudents [not null]
+}
+
+Table Achievement {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
+  image String [not null]
+  coursesOnStudents CoursesOnStudents [not null]
+  coursesOnStudentsCourseId Int [not null]
+  coursesOnStudentsStudentId Int [not null]
+
+  indexes {
+    (coursesOnStudentsCourseId, coursesOnStudentsStudentId) [unique]
+  }
 }
 
 Table StudentProfile {
@@ -354,6 +369,8 @@ Ref: CoursesOnStudents.courseId > Course.id
 Ref: CoursesOnStudents.studentId > User.id
 
 Ref: CoursesOnStudents.progressId > Progress.id
+
+Ref: Achievement.(coursesOnStudentsCourseId, coursesOnStudentsStudentId) - CoursesOnStudents.(courseId, studentId)
 
 Ref: StudentProfile.userId - User.id
 

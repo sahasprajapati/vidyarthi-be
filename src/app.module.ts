@@ -21,6 +21,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ProfileModule } from './profile/profile.module';
 import { RatingModule } from './review/rating.module';
+import { AchievementModule } from './achievement/achievement.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { RatingModule } from './review/rating.module';
     CategoryModule,
     ProfileModule,
     RatingModule,
+    AchievementModule,
   ],
   controllers: [AppController],
   providers: [

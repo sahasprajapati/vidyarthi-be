@@ -11,6 +11,7 @@ import { paginateFilter } from './../common/utils/paginate';
 import { CreateCourseDto, Lecture, SectionDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { uniqueNamesGenerator, NumberDictionary } from 'unique-names-generator';
+import { trimEnd } from 'lodash';
 
 @Injectable()
 export class CourseService {
@@ -253,7 +254,7 @@ export class CourseService {
     // this.prisma.course.findMany();
     const criteria: Prisma.CourseFindManyArgs = {
       skip: pageOptionsDto.skip,
-      take: pageOptionsDto.take,
+      take: pageOptionsDto.take ?? 6,
       orderBy: {
         popularity: 'desc',
       },
@@ -274,27 +275,25 @@ export class CourseService {
         },
       },
     };
-    if (pageOptionsDto.filter) {
-      criteria.where = {
-        AND: [
-          { categoryId: currentCourse.categoryId },
-          { id: { not: courseId } },
-        ],
-        // OR: [
-        //   {
-        //     topic: {
-        //       ...paginateFilter(pageOptionsDto.filter),
-        //     },
-        //     title: {
-        //       ...paginateFilter(pageOptionsDto.filter),
-        //     },
-        //     subtitle: {
-        //       ...paginateFilter(pageOptionsDto.filter),
-        //     },
-        //   },
-        // ],
-      };
-    }
+    criteria.where = {
+      AND: [
+        { categoryId: currentCourse.categoryId },
+        { id: { not: courseId } },
+      ],
+      // OR: [
+      //   {
+      //     topic: {
+      //       ...paginateFilter(pageOptionsDto.filter),
+      //     },
+      //     title: {
+      //       ...paginateFilter(pageOptionsDto.filter),
+      //     },
+      //     subtitle: {
+      //       ...paginateFilter(pageOptionsDto.filter),
+      //     },
+      //   },
+      // ],
+    };
     const courses = await paginate<
       Course & {
         ratingsCount: number;
@@ -319,7 +318,6 @@ export class CourseService {
         ratingsAvg: ratingsAvg ?? 0,
       };
     });
-
     return { ...courses, data: data };
   }
 
@@ -412,6 +410,85 @@ export class CourseService {
       where: {
         id: +id,
       },
+      select: {
+        id: true,
+        title: true,
+        subtitle: true,
+        price: true,
+        topic: true,
+        level: true,
+        learnableContent: true,
+        skills: true,
+        description: true,
+        category: true,
+        subCategory: true,
+        instructors: true,
+        ratings: {
+          select: {
+            createdAt: true,
+            userId: true,
+            rate: true,
+            message: true,
+            ratedBy: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        sections: {
+          select: {
+            listOrder: true,
+            name: true,
+            lectures: {
+              select: {
+                name: true,
+                listOrder: true,
+                description: true,
+                length: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const ratings = course.ratings;
+    const ratingsUserCount = ratings.length;
+    const ratingsAvg =
+      ratings?.reduce((acc, rating) => acc + rating?.rate ?? 0, 0) /
+      ratings?.length;
+
+    const usersCount = new Set(ratings.map((rating) => rating.userId)).size;
+
+    const groupedRatings = await this.prisma.rating.groupBy({
+      by: ['rate'],
+      where: {
+        courseId: course?.id,
+      },
+      _count: {
+        rate: true,
+      },
+    });
+    await this.handleProductView(+id);
+    return {
+      ...course,
+      ratingsUserCount: ratingsUserCount,
+      ratingsAvg: ratingsAvg ?? 0,
+      usersCount: usersCount,
+      groupedRatings: groupedRatings,
+    };
+  }
+  async findMyOne(id: number) {
+    await verifyEntity({
+      model: this.prisma.course,
+      name: 'Course',
+      id,
+    });
+    const course = await this.prisma.course.findFirst({
+      where: {
+        id: +id,
+      },
       include: {
         category: true,
         subCategory: true,
@@ -421,7 +498,15 @@ export class CourseService {
             ratedBy: true,
           },
         },
-        coursesOnStudents: true,
+        coursesOnStudents: {
+          include: {
+            progress: {
+              include: {
+                completedSections: true,
+              },
+            },
+          },
+        },
         sections: {
           include: {
             lectures: {
@@ -442,12 +527,23 @@ export class CourseService {
 
     const usersCount = new Set(ratings.map((rating) => rating.userId)).size;
 
+    const groupedRatings = await this.prisma.rating.groupBy({
+      by: ['rate'],
+      where: {
+        courseId: course?.id,
+      },
+      _count: {
+        rate: true,
+      },
+    });
+
     await this.handleProductView(+id);
     return {
       ...course,
       ratingsUserCount: ratingsUserCount,
       ratingsAvg: ratingsAvg ?? 0,
       usersCount: usersCount,
+      groupedRatings: groupedRatings,
     };
   }
 

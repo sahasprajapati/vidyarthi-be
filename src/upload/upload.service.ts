@@ -23,6 +23,25 @@ export class UploadService {
         });
     }
 
+    async uploadCertificate(
+      file: Buffer,
+      name:string
+    ): Promise<UploadApiResponse | UploadApiErrorResponse> {
+      return new Promise(async(resolve, reject) => {
+        try {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const filename = `${uniqueSuffix}-${name}`;
+          const res = await this.cloudinaryService.uploadFile(
+              file,
+              filename
+            );
+            resolve(res);
+          } catch (error) {
+            reject(error);
+          }
+        });
+    }
+
     async uploadVideoFile(
       file: Express.Multer.File
     ): Promise<UploadApiResponse | UploadApiErrorResponse> {
