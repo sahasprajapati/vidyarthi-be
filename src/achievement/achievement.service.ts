@@ -155,7 +155,6 @@ export class AchievementService {
       `${name}-${courseName}-certificate`,
     );
     // fs.writeFile(output, pdfBytes, () => {
-    //   console.log('PDF created!');
     // });
     return res.secure_url;
   }

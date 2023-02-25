@@ -8,5 +8,6 @@ import { UploadModule } from '@src/upload/upload.module';
   imports: [PrismaModule, UploadModule],
   controllers: [AchievementController],
   providers: [AchievementService],
+  exports: [AchievementService],
 })
 export class AchievementModule {}

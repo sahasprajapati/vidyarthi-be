@@ -1,4 +1,3 @@
-import { Section } from './../_gen/prisma-class/section';
 import { verifyEntity } from '@common/utils/verifyEntity';
 import { Course } from '@gen/prisma-class/course';
 import { Injectable } from '@nestjs/common';
@@ -6,12 +5,11 @@ import { Prisma } from '@prisma/client';
 import { PageOptionsDto } from '@src/common/dtos/pagination/page-options.dto';
 import { paginate } from '@src/common/utils/paginate';
 import { PrismaService } from '@src/prisma/prisma.service';
+import { NumberDictionary, uniqueNamesGenerator } from 'unique-names-generator';
 import { PageDto } from '../common/dtos/pagination/page.dto';
 import { paginateFilter } from './../common/utils/paginate';
 import { CreateCourseDto, Lecture, SectionDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
-import { uniqueNamesGenerator, NumberDictionary } from 'unique-names-generator';
-import { trimEnd } from 'lodash';
 
 @Injectable()
 export class CourseService {
@@ -479,7 +477,7 @@ export class CourseService {
       groupedRatings: groupedRatings,
     };
   }
-  async findMyOne(id: number) {
+  async findMyOne(id: number, userId: number) {
     await verifyEntity({
       model: this.prisma.course,
       name: 'Course',
@@ -498,15 +496,6 @@ export class CourseService {
             ratedBy: true,
           },
         },
-        coursesOnStudents: {
-          include: {
-            progress: {
-              include: {
-                completedSections: true,
-              },
-            },
-          },
-        },
         sections: {
           include: {
             lectures: {
@@ -514,6 +503,22 @@ export class CourseService {
                 note: true,
               },
             },
+          },
+        },
+      },
+    });
+
+    const myCourse = await this.prisma.coursesOnStudents.findUnique({
+      where: {
+        courseId_studentId: {
+          courseId: id,
+          studentId: userId,
+        },
+      },
+      include: {
+        progress: {
+          include: {
+            completedLectures: true,
           },
         },
       },
@@ -544,6 +549,7 @@ export class CourseService {
       ratingsAvg: ratingsAvg ?? 0,
       usersCount: usersCount,
       groupedRatings: groupedRatings,
+      myCourse: myCourse,
     };
   }
 

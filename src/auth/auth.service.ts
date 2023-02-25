@@ -2,11 +2,11 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
-  UnauthorizedException,
+  UnauthorizedException
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Permission, Prisma, User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { SecurityConfig } from '@src/configs';
 import { PrismaService } from '@src/prisma/prisma.service';
 import { UsersService } from '@src/user/user.service';
@@ -57,7 +57,6 @@ export class AuthService {
   }
 
   async login(user: any) {
-    console.log(user);
     return {
       ...this.generateTokens({
         userId: user?.id,

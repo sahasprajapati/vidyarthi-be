@@ -15,7 +15,9 @@ import {
   Patch,
   Post,
   Put,
-  Query, Req, UseInterceptors
+  Query,
+  Req,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CaslAbilityFactory } from '@src/auth/casl-ability.factory/casl-ability.factory';
@@ -35,9 +37,7 @@ import { CourseEntity } from './entities/course.entity';
 @UseInterceptors(ClassSerializerInterceptor)
 @ApiTags('course')
 export class CourseController {
-  constructor(
-    private readonly courseService: CourseService
-  ) {}
+  constructor(private readonly courseService: CourseService) {}
 
   @Post()
   @ApiCustomResponse(Course)
@@ -69,29 +69,30 @@ export class CourseController {
     return this.courseService.findAll(pageOptionsDto);
   }
 
-
-  @Get("me")
+  @Get('me')
   @ApiPaginatedResponse(Course, true)
   @CheckPolicies(
     new CustomPolicyHandler(PermissionAction.Read, PermissionSubject.Course),
   )
-  async findAllMyCourse(@Req() req,@Query() pageOptionsDto: PageOptionsDto) {
+  async findAllMyCourse(@Req() req, @Query() pageOptionsDto: PageOptionsDto) {
     // const ability = await this.abilityFactory.createForCourse(req.user)
     // ability.can()
     // if (ability.can(PermissionAction.READ, condition)) {
     //   throw new ForbiddenException("You dont have access to this resource!");
     // }
-    return this.courseService.findAllMyCourse(  +req?.user?.id,pageOptionsDto);
+    return this.courseService.findAllMyCourse(+req?.user?.id, pageOptionsDto);
   }
 
-
-  @Get("suggested/:id")
+  @Get('suggested/:id')
   @Public()
   @ApiPaginatedResponse(Course, true)
   @CheckPolicies(
     new CustomPolicyHandler(PermissionAction.Read, PermissionSubject.Course),
   )
-  async findAllSuggested(@Param("id") id: number, @Query() pageOptionsDto: PageOptionsDto) {
+  async findAllSuggested(
+    @Param('id') id: number,
+    @Query() pageOptionsDto: PageOptionsDto,
+  ) {
     // const ability = await this.abilityFactory.createForCourse(req.user)
     // ability.can()
     // if (ability.can(PermissionAction.READ, condition)) {
@@ -100,7 +101,7 @@ export class CourseController {
     return this.courseService.findAllSuggested(id, pageOptionsDto);
   }
 
-  @Get("popular")
+  @Get('popular')
   @Public()
   @ApiPaginatedResponse(Course, true)
   @CheckPolicies(
@@ -115,20 +116,18 @@ export class CourseController {
     return this.courseService.findAllPopular(pageOptionsDto);
   }
 
-
-
   @Get('me/:id')
   @ApiCustomResponse(Course, true)
   @CheckPolicies(
     new CustomPolicyHandler(PermissionAction.Read, PermissionSubject.Course),
   )
-  async findMyOne(@Param('id') id: string) {
+  async findMyOne(@Req() req, @Param('id') id: string) {
     return new ResponseDto(
       generateRepsonseMessage({
         model: 'Course',
         message: ResponseMessage.Read,
       }),
-      await this.courseService.findMyOne(+id),
+      await this.courseService.findMyOne(+id, req?.user?.id),
     );
   }
 

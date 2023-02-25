@@ -32,11 +32,37 @@ export class TransactionService {
       orderBy: {
         createdAt: pageOptionsDto.order,
       },
-      select: {
-        id: true,
-        medium: true,
-        createdAt: true,
-        updatedAt: true,
+      include: {
+        paidBy: true,
+        paidTo: true,
+        course: true,
+      },
+    };
+
+    const transactions = await paginate<
+      FindAllTransactionWithSelect,
+      Prisma.TransactionFindManyArgs
+    >(this.prisma.transaction, criteria, pageOptionsDto);
+    return transactions;
+  }
+
+  async findMyAll(
+    id: number,
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<FindAllTransactionWithSelect>> {
+    const criteria: Prisma.TransactionFindManyArgs = {
+      where: {
+        paidToId: id,
+      },
+      skip: pageOptionsDto.skip,
+      take: pageOptionsDto.take,
+      orderBy: {
+        createdAt: pageOptionsDto.order,
+      },
+      include: {
+        paidBy: true,
+        paidTo: true,
+        course: true,
       },
     };
 

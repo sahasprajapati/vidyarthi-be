@@ -9,6 +9,7 @@ import {
   Query,
   Put,
   BadRequestException,
+  Req,
 } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -46,6 +47,11 @@ export class TransactionController {
   @Get()
   async findAll(@Query() pageOptionsDto: PageOptionsDto) {
     return await this.transactionService.findAll(pageOptionsDto);
+  }
+
+  @Get('me')
+  async findMyAll(@Req() req, @Query() pageOptionsDto: PageOptionsDto) {
+    return await this.transactionService.findMyAll(req.user.id, pageOptionsDto);
   }
 
   @Get(':id')

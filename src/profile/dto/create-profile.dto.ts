@@ -73,14 +73,11 @@ export class CreateCartDto {
   courseIds: string[];
 }
 
-
-
-
 export class UpdateProfileDto {
-  @ApiProperty({nullable : true})
+  @ApiProperty({ nullable: true })
   dob?: Date;
 
-  @ApiProperty({nullable : true})
+  @ApiProperty({ nullable: true })
   occupation?: string;
 
   @ApiProperty({ nullable: true })
@@ -98,7 +95,7 @@ export class UpdateProfileDto {
   @ApiProperty({ nullable: true })
   isEmailUpdates?: boolean;
 
-  @ApiProperty({nullable : true})
+  @ApiProperty({ nullable: true })
   teacherNotificationTypes?: TEACHER_NOTIFICATION_TYPE[];
 
   @ApiProperty({ nullable: true })

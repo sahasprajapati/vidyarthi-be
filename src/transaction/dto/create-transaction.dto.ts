@@ -4,8 +4,13 @@ import { PaymentMedium } from '@prisma/client';
 export class CreateTransactionDto {
   @ApiProperty({ default: PaymentMedium.ESEWA })
   medium: PaymentMedium;
+
   @ApiProperty()
-  serviceId: number;
+  paidById: number;
+
   @ApiProperty()
-  customerId: number;
+  paidToId: number;
+
+  @ApiProperty()
+  courseId: number;
 }

@@ -88,11 +88,13 @@ model User {
   teacherCourses    Course[]            @relation("Instructors")
   coursesOnStudents CoursesOnStudents[]
 
-  studentProfile StudentProfile?
-  teacherProfile TeacherProfile?
-  orders         Order[]
-  wishlist       Wishlist?
-  cart           Cart?
+  studentProfile     StudentProfile?
+  teacherProfile     TeacherProfile?
+  orders             Order[]
+  wishlist           Wishlist?
+  cart               Cart?
+  paidTransactions   Transaction[]   @relation("paidBy")
+  earnedTransactions Transaction[]   @relation("paidTo")
 }
 
 model CoursesOnStudents {
@@ -115,8 +117,8 @@ model Progress {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  completedSections  Section[]
-  progressPercentage Int
+  completedLectures  Lecture[]
+  progressPercentage Float
   coursesOnStudents  CoursesOnStudents[]
 }
 
@@ -197,12 +199,25 @@ model SocialProfile {
 }
 
 model Transaction {
-  id         Int           @id @default(autoincrement())
-  medium     PaymentMedium @default(ESEWA)
-  serviceId  Int           @unique
-  customerId Int?
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @default(now()) @updatedAt
+  id     Int           @id @default(autoincrement())
+  medium PaymentMedium @default(ESEWA)
+
+  status Status  @default(COMPLETED)
+
+  total    Int @default(0)
+  course   Course @relation(fields: [courseId], references: [id])
+  courseId Int
+
+  paidTo   User @relation("paidTo", fields: [paidToId], references: [id])
+  paidToId Int
+
+  paidBy   User @relation("paidBy", fields: [paidById], references: [id])
+  paidById Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@unique([courseId, paidById])
 }
 
 enum PaymentMedium {
@@ -211,6 +226,10 @@ enum PaymentMedium {
   FONEPAY
 }
 
+enum Status {
+  COMPLETED
+  REQUESTED
+}
 model Rating {
   id      Int    @id @default(autoincrement())
   message String
@@ -269,7 +288,8 @@ model Course {
   Wishlist          Wishlist[]
   Cart              Cart[]
 
-  popularity Int @default(0)
+  popularity  Int           @default(0)
+  transaction Transaction[]
 }
 
 model Category {
@@ -318,8 +338,6 @@ model Section {
   updatedAt DateTime  @default(now()) @updatedAt
   Course    Course?   @relation(fields: [courseId], references: [id])
   courseId  Int?
-
-  progress Progress[]
 }
 
 model Lecture {
@@ -333,11 +351,12 @@ model Lecture {
   note   Note? @relation(fields: [noteId], references: [id])
   noteId Int?  @unique
 
-  section   Section @relation(fields: [sectionId], references: [id])
-  sectionId Int
-  length    String?
+  section        Section    @relation(fields: [sectionId], references: [id])
+  sectionId      Int
+  length         String?
   // url video
-  video     String?
+  video          String?
+  lecturesViewed Progress[]
 }
 
 model Note {

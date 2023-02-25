@@ -1,10 +1,12 @@
-import { Role } from '@gen/prisma-class/role';
 import { verifyEntity } from '@common/utils/verifyEntity';
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { User } from '@prisma/client';
+import { AchievementService } from '@src/achievement/achievement.service';
+import { CourseService } from '@src/course/course.service';
 import { PrismaService } from '@src/prisma/prisma.service';
+import { TransactionService } from '@src/transaction/transaction.service';
 import {
   UpdateCartDto,
-  UpdateOrderDto,
   UpdateStudentProfileDto,
   UpdateTeacherProfileDto,
   UpdateWishlistDto,
@@ -12,7 +14,12 @@ import {
 
 @Injectable()
 export class ProfileService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private courseService: CourseService,
+    private achievementService: AchievementService,
+    private transactionService: TransactionService,
+  ) {}
 
   async updateProfile(
     id: number,
@@ -237,7 +244,11 @@ export class ProfileService {
       include: {
         cart: {
           include: {
-            course: true,
+            course: {
+              include: {
+                instructors: true,
+              },
+            },
           },
         },
         wishlist: true,
@@ -253,7 +264,7 @@ export class ProfileService {
       totalPrice += course?.price ?? 0;
     });
 
-    await this.prisma.order.create({
+    const order = await this.prisma.order.create({
       data: {
         userId: +userId,
 
@@ -267,45 +278,56 @@ export class ProfileService {
         course: true,
       },
     });
-    await Promise.all(user?.cart?.course.map(async (course:any) => {
-      if(course?.id){
-
-       await this.prisma.coursesOnStudents.upsert({
-          where: {
-            courseId_studentId: {
+    await Promise.all(
+      user?.cart?.course.map(async (course: any) => {
+        if (course?.id && course?.instructors?.length > 0) {
+          await this.prisma.coursesOnStudents.upsert({
+            where: {
+              courseId_studentId: {
+                courseId: +course?.id,
+                studentId: +userId,
+              },
+            },
+            create: {
+              course: {
+                connect: {
+                  id: +course?.id,
+                },
+              },
+              student: {
+                connect: {
+                  id: +userId,
+                },
+              },
+              progress: {
+                create: {
+                  progressPercentage: 0,
+                },
+              },
+            },
+            update: {
               courseId: +course?.id,
               studentId: +userId,
             },
-          },
-          create: {
-            course: {
-              connect: {
-                id: +course?.id
-              }
+          });
+
+          await this.prisma.transaction.create({
+            data: {
+              paidById: +userId,
+              paidToId: course?.instructors[0].id,
+              courseId: course?.id,
+              total: course?.price,
             },
-            student: {
-              connect: {
-                id: +userId
-              }
-            },
-            progress: {
-              create: {
-                progressPercentage: 0,
-              }
-            }
-          },
-          update: {
-            courseId: +course?.id,
-            studentId: +userId,
-          },
-        });
-      }
-    }));
+          });
+        }
+      }),
+    );
     await this.prisma.cart.delete({
       where: {
         userId: +userId,
       },
     });
+
     return await this.prisma.user.findUnique({
       where: {
         id: +userId,
@@ -339,5 +361,113 @@ export class ProfileService {
     });
 
     return cart;
+  }
+
+  async updateMyLecture(
+    user: User,
+    updateLectureDto: { lectureId: number; courseId: number },
+  ) {
+    await verifyEntity({
+      model: this.prisma.lecture,
+      name: 'User',
+      id: +updateLectureDto.lectureId,
+    });
+
+    let myCourse = await this.prisma.coursesOnStudents.findFirst({
+      where: {
+        courseId: updateLectureDto.courseId,
+        studentId: user?.id,
+      },
+      include: {
+        progress: {
+          include: {
+            completedLectures: true,
+          },
+        },
+        course: {
+          include: {
+            sections: {
+              include: {
+                lectures: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    await this.prisma.progress.update({
+      where: {
+        id: myCourse.progressId,
+      },
+      data: {
+        completedLectures: {
+          connect: {
+            id: updateLectureDto.lectureId,
+          },
+        },
+      },
+    });
+
+    myCourse = await this.prisma.coursesOnStudents.findFirst({
+      where: {
+        courseId: updateLectureDto.courseId,
+        studentId: user?.id,
+      },
+      include: {
+        progress: {
+          include: {
+            completedLectures: true,
+          },
+        },
+        course: {
+          include: {
+            sections: {
+              include: {
+                lectures: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const totalLength = myCourse?.course?.sections?.reduce((acc, section) => {
+      return acc + section?.lectures?.length;
+    }, 0);
+
+    const totalCompleted = myCourse?.progress?.completedLectures?.length;
+
+    const percentage = Math.min((totalCompleted ?? 0) / (totalLength ?? 1), 1);
+    await this.prisma.progress.update({
+      where: {
+        id: myCourse.progressId,
+      },
+      data: {
+        completedLectures: {
+          connect: {
+            id: updateLectureDto.lectureId,
+          },
+        },
+        progressPercentage: percentage,
+      },
+    });
+
+    if (percentage >= 1) {
+      const achievement = await this.prisma.achievement.findUnique({
+        where: {
+          coursesOnStudentsCourseId_coursesOnStudentsStudentId: {
+            coursesOnStudentsCourseId: updateLectureDto.courseId,
+            coursesOnStudentsStudentId: +user.id,
+          },
+        },
+      });
+      if (!achievement) {
+        this.achievementService.create(user, {
+          courseId: updateLectureDto.courseId,
+        });
+      }
+    }
+    return this.courseService.findMyOne(updateLectureDto?.courseId, user.id);
   }
 }

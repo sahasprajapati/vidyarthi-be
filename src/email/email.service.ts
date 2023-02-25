@@ -40,7 +40,6 @@ export class EmailService {
       });
       return `Mail Sent Successfully to ${user.email}`;
     } catch (error) {
-      console.log(error);
       return '500 Error';
     }
   }

@@ -70,6 +70,8 @@ Table User {
   orders Order [not null]
   wishlist Wishlist
   cart Cart
+  paidTransactions Transaction [not null]
+  earnedTransactions Transaction [not null]
 }
 
 Table CoursesOnStudents {
@@ -91,8 +93,8 @@ Table Progress {
   id Int [pk, increment]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [default: `now()`, not null]
-  completedSections Section [not null]
-  progressPercentage Int [not null]
+  completedLectures Lecture [not null]
+  progressPercentage Float [not null]
   coursesOnStudents CoursesOnStudents [not null]
 }
 
@@ -158,10 +160,20 @@ Table SocialProfile {
 Table Transaction {
   id Int [pk, increment]
   medium PaymentMedium [not null, default: 'ESEWA']
-  serviceId Int [unique, not null]
-  customerId Int
+  status Status [not null, default: 'COMPLETED']
+  total Int [not null, default: 0]
+  course Course [not null]
+  courseId Int [not null]
+  paidTo User [not null]
+  paidToId Int [not null]
+  paidBy User [not null]
+  paidById Int [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [default: `now()`, not null]
+
+  indexes {
+    (courseId, paidById) [unique]
+  }
 }
 
 Table Rating {
@@ -209,6 +221,7 @@ Table Course {
   Wishlist Wishlist [not null]
   Cart Cart [not null]
   popularity Int [not null, default: 0]
+  transaction Transaction [not null]
 }
 
 Table courseCategories {
@@ -244,7 +257,6 @@ Table Section {
   updatedAt DateTime [default: `now()`, not null]
   Course Course
   courseId Int
-  progress Progress [not null]
 }
 
 Table Lecture {
@@ -260,6 +272,7 @@ Table Lecture {
   sectionId Int [not null]
   length String
   video String
+  lecturesViewed Progress [not null]
 }
 
 Table Note {
@@ -304,9 +317,9 @@ Table Instructors {
   instructorsId Int [ref: > User.id]
 }
 
-Table ProgressToSection {
-  completedsectionsId Int [ref: > Section.id]
-  progressId Int [ref: > Progress.id]
+Table LectureToProgress {
+  completedlecturesId Int [ref: > Lecture.id]
+  lecturesviewedId Int [ref: > Progress.id]
 }
 
 Table CourseToOrder {
@@ -345,6 +358,11 @@ Enum PaymentMedium {
   FONEPAY
 }
 
+Enum Status {
+  COMPLETED
+  REQUESTED
+}
+
 Enum Language {
   ENGLISH
   NEPALI
@@ -377,6 +395,12 @@ Ref: StudentProfile.userId - User.id
 Ref: TeacherProfile.userId - User.id
 
 Ref: SocialProfile.teacherProfileId - TeacherProfile.id
+
+Ref: Transaction.courseId > Course.id
+
+Ref: Transaction.paidToId > User.id
+
+Ref: Transaction.paidById > User.id
 
 Ref: Rating.userId > User.id
 

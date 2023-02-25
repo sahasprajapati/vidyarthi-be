@@ -13,7 +13,6 @@ export class SendEmailConsumer {
 
   @Process('send-email-job')
   async sendEmail(job: Job) {
-    // console.log(job.data);
     const users = job.data;
     console.log('Sending email queue started');
 

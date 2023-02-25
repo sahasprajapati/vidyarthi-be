@@ -70,8 +70,8 @@ export class RatingController {
     @Req() req
   ) {
     const user = req.user;
-    if(user.id !== updateRatingDto.userId) {
-      throw new BadRequestException()
+    if (user.id !== updateRatingDto.userId) {
+      throw new BadRequestException();
     }
     return new ResponseDto(
       generateRepsonseMessage({

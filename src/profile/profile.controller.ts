@@ -39,6 +39,26 @@ export class ProfileController {
     private abilityFactory: CaslAbilityFactory,
   ) {}
 
+
+  @Patch('lecture')
+  @ApiCustomResponse(UserFindAllDto, true)
+  @CheckPolicies(
+    new CustomPolicyHandler(PermissionAction.Update, PermissionSubject.User),
+  )
+  @ApiOkResponse({ type: UserEntity })
+  async updateMyLecture(
+    @Body() updateLectureDto: { lectureId: number; courseId: number },
+
+    @Req() req: any,
+  ) {
+    return new ResponseDto(
+      generateRepsonseMessage({
+        model: 'Lecture',
+        message: ResponseMessage.Update,
+      }),
+      await this.profileService.updateMyLecture(req.user, updateLectureDto),
+    );
+  }
   @Patch('/:id')
   @ApiCustomResponse(UserFindAllDto, true)
   @CheckPolicies(

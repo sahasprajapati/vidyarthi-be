@@ -1,9 +1,8 @@
-import { UploadDto } from './dto/upload.dto';
 import { ApiCustomResponse } from '@common/decorators/api-custom-response.decorator';
+import { ResponseDto } from '@common/dtos/response.dto';
 import {
   BadRequestException,
   Controller,
-  FileTypeValidator,
   ParseFilePipe,
   Post,
   UploadedFile,
@@ -11,9 +10,9 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { UploadService } from './upload.service';
-import { ResponseDto } from '@common/dtos/response.dto';
 import { generateRepsonseMessage } from '@src/roles/response';
+import { UploadDto } from './dto/upload.dto';
+import { UploadService } from './upload.service';
 
 @Controller('upload')
 @ApiBearerAuth()
@@ -48,7 +47,6 @@ export class UploadController {
       .uploadFile(file)
 
       .catch((err) => {
-        console.log(err);
         throw new BadRequestException('Here is where it went wrong');
       });
     return new ResponseDto(
@@ -83,12 +81,9 @@ export class UploadController {
     )
     file: Express.Multer.File,
   ) {
-    const res = await this.uploadService
-      .uploadVideoFile(file)
-      .catch((err) => {
-        console.log(err);
-        throw new BadRequestException('Here is where it went wrong');
-      });
+    const res = await this.uploadService.uploadVideoFile(file).catch((err) => {
+      throw new BadRequestException('Here is where it went wrong');
+    });
     return new ResponseDto(
       generateRepsonseMessage({
         model: 'Upload',
