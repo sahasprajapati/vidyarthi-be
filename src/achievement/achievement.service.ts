@@ -122,12 +122,8 @@ export class AchievementService {
 
   async generatePdf({ name, courseName }) {
     //input is the fillable form created by converting the pdf given by clients to fillable pdf using acrobat or something
-    const input = join(process.cwd(), `./src/template/certificate-design.pdf`);
+    const input = join(process.cwd(), `./template/certificate-design.pdf`);
     //output is the pdf that contains the data
-    const output = join(
-      process.cwd(),
-      `./src/template/uploads/${Date.now()}-${name}-${courseName}-certificate.pdf`,
-    );
 
     const readFile = util.promisify(fs.readFile);
     function getStuff() {

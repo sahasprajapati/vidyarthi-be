@@ -9,6 +9,7 @@
     "prebuild": "rimraf dist && npx prisma generate && npm run copy-static",
     "build": "nest build",
     "copy-static": "cp  -r 'static' 'dist'",
+    "copy-template": "cp  -r 'template' 'dist'",
     "vercel-build": "rimraf dist && npx prisma generate && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "gen-enum": "ts-node prisma/generator.ts",
