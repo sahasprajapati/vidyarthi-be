@@ -8,7 +8,7 @@ import { UpdateAchievementDto } from './dto/update-achievement.dto';
 import { PageDto } from '@src/common/dtos/pagination/page.dto';
 import { Prisma, User } from '@prisma/client';
 import { paginate } from '@common/utils/paginate';
-import { join } from 'path';
+import path, { join } from 'path';
 import util from 'util';
 import fs from 'fs';
 import { PDFDocument } from 'pdf-lib';
@@ -146,12 +146,20 @@ export class AchievementService {
 
     const pdfBytes = await pdfDoc.save();
 
-    const res = await this.uploadService.uploadCertificate(
-      Buffer.from(pdfBytes),
-      `${name}-${courseName}-certificate`,
+    // const res = await this.uploadService.uploadCertificate(
+    //   Buffer.from(pdfBytes),
+    //   `${name}-${courseName}-certificate`,
+    // );
+    const route = path.join(
+      __dirname,
+      '..',
+      '..',
+      'uploads',
+      '${name}-${courseName}-certificate.pdf',
     );
-    // fs.writeFile(output, pdfBytes, () => {
-    // });
-    return res.secure_url;
+    fs.writeFile(route, pdfBytes, () => {
+      console.log('Uploaded certificate');
+    });
+    return route;
   }
 }

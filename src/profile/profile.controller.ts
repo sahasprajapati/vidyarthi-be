@@ -227,4 +227,20 @@ export class ProfileController {
       await this.profileService.getCart(+req?.user?.id),
     );
   }
+
+  @Get('dashboard')
+  @ApiCustomResponse(UserFindAllDto, true)
+  @CheckPolicies(
+    new CustomPolicyHandler(PermissionAction.Read, PermissionSubject.User),
+  )
+  @ApiOkResponse({ type: UserEntity })
+  async fetchDashboard(@Req() req: any) {
+    return new ResponseDto(
+      generateRepsonseMessage({
+        model: 'Cart',
+        message: ResponseMessage.Read,
+      }),
+      await this.profileService.getDashboardData(req.user),
+    );
+  }
 }

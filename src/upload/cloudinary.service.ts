@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import toStream  from 'buffer-to-stream';
+import toStream from 'buffer-to-stream';
 import { UploadApiErrorResponse, UploadApiResponse, v2 } from 'cloudinary';
 
 @Injectable()
@@ -31,7 +31,7 @@ export class CloudinaryService {
     return new Promise((resolve, reject) => {
       const upload = v2.uploader.upload_stream(
         {
-          resource_type: "video",
+          resource_type: 'video',
           folder: 'vidyarthi',
           public_id: filename,
         },

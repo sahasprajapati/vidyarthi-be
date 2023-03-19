@@ -5,6 +5,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { join } from 'path';
 import { CloudinaryService } from './cloudinary.service';
 import { CloudinaryProvider } from './cloudinary.provider';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
   imports: [],

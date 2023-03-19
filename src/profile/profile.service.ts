@@ -1,6 +1,6 @@
 import { verifyEntity } from '@common/utils/verifyEntity';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { AchievementService } from '@src/achievement/achievement.service';
 import { CourseService } from '@src/course/course.service';
 import { PrismaService } from '@src/prisma/prisma.service';
@@ -469,5 +469,242 @@ export class ProfileService {
       }
     }
     return this.courseService.findMyOne(updateLectureDto?.courseId, user.id);
+  }
+
+  async getAdminDashboard(userId: number) {
+    const user = await this.prisma.user.groupBy({
+      by: ['roleId'],
+
+      _count: {
+        id: true,
+      },
+    });
+    const roles = await this.prisma.role.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    const roledUsers = user.map((u) => {
+      const role = roles.find((role) => role.id === u.roleId);
+      return {
+        name: role.name,
+        count: u._count?.id,
+      };
+    });
+    const transactions = await this.prisma.transaction.groupBy({
+      by: ['status'],
+      _sum: {
+        total: true,
+      },
+    });
+
+    const popularTeacher = await this.prisma.user?.findMany({
+      where: {
+        role: {
+          name: 'instructor',
+        },
+      },
+      include: {
+        _count: {
+          select: {
+            teacherCourses: true,
+          },
+        },  
+        teacherCourses: {
+          select: {
+            _count: {
+              select: {
+                coursesOnStudents: true,
+              },
+            },
+          },
+        },
+        role: true,
+      },
+      orderBy: {
+        teacherCourses: {
+          _count: Prisma.SortOrder.desc,
+        },
+      },
+    });
+
+    const courses = await this.prisma.coursesOnStudents.count();
+
+    return {
+      dashboard: {
+        transactions,
+        courses,
+        roledUsers,
+        popularTeacher,
+      },
+    };
+  }
+  async getUserDashboard(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: +userId,
+      },
+      include: {
+        coursesOnStudents: {
+          include: {
+            progress: true,
+            course: true,
+          },
+        },
+      },
+    });
+
+    const achievements = await this.prisma.achievement.findMany({
+      where: {
+        coursesOnStudentsStudentId: +userId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let courseInProgress = 0,
+      completedCourseCount = 0,
+      ownedCourse = 0,
+      totalAchievement = 0;
+    const completedCourses = [];
+
+    user?.coursesOnStudents?.map((coursesOnStudent) => {
+      if (coursesOnStudent?.progress?.progressPercentage >= 1) {
+        completedCourseCount += 1;
+      } else {
+        courseInProgress += 1;
+      }
+      if (coursesOnStudent?.course) {
+        completedCourses.push(coursesOnStudent?.course);
+      }
+
+      ownedCourse += 1;
+    });
+
+    totalAchievement = achievements?.length ?? 0;
+
+    return {
+      dashboard: {
+        courseInProgress,
+        completedCourseCount,
+        ownedCourse,
+        totalAchievement,
+      },
+      completedCourses,
+    };
+  }
+
+  async getTeacherTransactionReport(id: number): Promise<any[]> {
+    const transactionReport: any[] = await this.prisma.$queryRaw`
+      SELECT DATE_TRUNC('month', "createdAt") AS "month",
+             SUM("total") AS "totalAmount"
+      FROM "Transaction"
+      GROUP BY DATE_TRUNC('month', "createdAt")
+      ORDER BY "month" DESC
+      -- WHERE paidToId = ${id}
+    `;
+
+    return transactionReport;
+  }
+
+  async getTopSellingCourse(id: number): Promise<any[]> {
+    return this.prisma.course.findMany({
+      orderBy: {
+        coursesOnStudents: {
+          _count: Prisma.SortOrder.desc,
+        },
+      },
+      include: {
+        coursesOnStudents: {
+          include: {
+            student: true,
+          },
+        },
+      },
+    });
+  }
+  async getInstructorDashboard(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: +userId,
+      },
+      include: {
+        teacherCourses: {
+          include: {
+            _count: {
+              select: { coursesOnStudents: true, ratings: true },
+            },
+          },
+        },
+      },
+    });
+
+    const transactions = await this.getTeacherTransactionReport(userId);
+    const topSales = await this.getTopSellingCourse(userId);
+    const coursesLevel = await this.prisma.course.groupBy({
+      by: ['level'],
+      _count: {
+        id: true,
+      },
+    });
+    const coursesContents = await this.prisma.course.findMany({
+      where: {
+        instructors: {
+          some: {
+            id: +userId,
+          },
+        },
+      },
+      select: {
+        sections: {
+          select: {
+            _count: {
+              select: {
+                lectures: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            ratings: true,
+          },
+        },
+      },
+    });
+    const totalReviews = coursesContents.reduce((acc, data) => {
+      return acc + (data?._count?.ratings ?? 0);
+    }, 0);
+    const totalContent = coursesContents.reduce((acc, data) => {
+      return (
+        acc +
+        data?.sections?.reduce((acc2, section) => {
+          return acc2 + (section?._count?.lectures ?? 0);
+        }, 0)
+      );
+    }, 0);
+
+    return {
+      dashboard: {
+        coursesLevel,
+        topSales,
+        totalContent,
+        totalReviews,
+        // transactions,
+      },
+    };
+  }
+
+  async getDashboardData(user: User & { role: { name: string } }) {
+    if (user.role?.name === 'instructor') {
+      return this.getInstructorDashboard(user.id);
+    }
+    if (user.role?.name === 'super') {
+      return this.getAdminDashboard(user.id);
+    }
+    return this.getUserDashboard(user.id);
   }
 }
