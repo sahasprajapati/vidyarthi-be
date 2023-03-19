@@ -23,11 +23,10 @@ import { ProfileModule } from './profile/profile.module';
 import { RatingModule } from './review/rating.module';
 import { AchievementModule } from './achievement/achievement.module';
 
-console.log('asdfad', join(__dirname, '..', '..', 'uploads'));
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'uploads'),
+      rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
       exclude: ['/api/*'],
     }),
