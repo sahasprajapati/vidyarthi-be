@@ -14,7 +14,7 @@ generator dbml {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -164,7 +164,7 @@ model TeacherProfile {
   biography   String?
   phoneNumber String?
 
-  notifications TEACHER_NOTIFICATION_TYPE[]
+  // notifications TEACHER_NOTIFICATION_TYPE[]
 
   socialProfile SocialProfile?
 
@@ -271,8 +271,8 @@ model Course {
 
   description String?
 
-  learnableContent String[]
-  skills           String[]
+  // learnableContent String[]
+  // skills           String[]
 
   welcomeMessage        String?
   congratulationMessage String?
@@ -365,7 +365,7 @@ model Note {
   noteDescription String?
 
   // urls to note files
-  noteFiles String[]
+  // noteFiles String[]
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   lecture   Lecture?

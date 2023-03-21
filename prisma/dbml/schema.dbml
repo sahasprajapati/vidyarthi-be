@@ -136,7 +136,6 @@ Table TeacherProfile {
   title String
   biography String
   phoneNumber String
-  notifications TEACHER_NOTIFICATION_TYPE[] [not null]
   socialProfile SocialProfile
   user User
   userId Int [unique]
@@ -207,8 +206,6 @@ Table Course {
   subCategory courseCategories [not null]
   subCategoryId Int [not null]
   description String
-  learnableContent String[] [not null]
-  skills String[] [not null]
   welcomeMessage String
   congratulationMessage String
   instructors User [not null]
@@ -278,7 +275,6 @@ Table Lecture {
 Table Note {
   id Int [pk, increment]
   noteDescription String
-  noteFiles String[] [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [default: `now()`, not null]
   lecture Lecture
@@ -310,31 +306,6 @@ Table Cart {
   course Course [not null]
   user User
   userId Int [unique]
-}
-
-Table Instructors {
-  teachercoursesId Int [ref: > Course.id]
-  instructorsId Int [ref: > User.id]
-}
-
-Table LectureToProgress {
-  completedlecturesId Int [ref: > Lecture.id]
-  lecturesviewedId Int [ref: > Progress.id]
-}
-
-Table CourseToOrder {
-  orderId Int [ref: > Order.id]
-  courseId Int [ref: > Course.id]
-}
-
-Table CourseToWishlist {
-  wishlistId Int [ref: > Wishlist.id]
-  courseId Int [ref: > Course.id]
-}
-
-Table CartToCourse {
-  cartId Int [ref: > Cart.id]
-  courseId Int [ref: > Course.id]
 }
 
 Enum SocialProvider {
