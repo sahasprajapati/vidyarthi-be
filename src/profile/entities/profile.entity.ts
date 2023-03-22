@@ -1,10 +1,10 @@
 import { UserEntity } from './../../user/entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  Prisma,
   SocialProfile,
   StudentProfile,
   TeacherProfile,
-  TEACHER_NOTIFICATION_TYPE,
 } from '@prisma/client';
 import { Occupation } from './../../_gen/prisma-class/occupation';
 import { TeacherNotification } from './../../_gen/prisma-class/teacher_notification';
@@ -47,6 +47,8 @@ export class StudentProfileEntity implements StudentProfile {
 
 export class TeacherProfileEntity implements TeacherProfile {
   @ApiProperty()
+  notifications: Prisma.JsonValue;
+  @ApiProperty()
   id: number;
 
   @ApiProperty()
@@ -61,11 +63,11 @@ export class TeacherProfileEntity implements TeacherProfile {
   @ApiProperty()
   image: string;
 
-  @ApiProperty({
-    enum: TEACHER_NOTIFICATION_TYPE,
-    isArray: true,
-  })
-  notifications: TEACHER_NOTIFICATION_TYPE[];
+  // @ApiProperty({
+  //   enum: TEACHER_NOTIFICATION_TYPE,
+  //   isArray: true,
+  // })
+  // notifications: TEACHER_NOTIFICATION_TYPE[];
   
   @ApiProperty()
   socialProfileId: number;

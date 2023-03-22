@@ -1,0 +1,37 @@
+{
+  "files": {
+    "main.css": "/static/css/main.bfc237ac.css",
+    "main.js": "/static/js/main.0bd5bfce.js",
+    "static/media/bg-course.png": "/static/media/bg-course.a952fa75a367f570620f.png",
+    "static/media/homePageCourse.png": "/static/media/homePageCourse.8a4b5b00287b7bbf39df.png",
+    "static/media/loginBanner.png": "/static/media/loginBanner.6543e93b0c06bb34208c.png",
+    "static/media/register.png": "/static/media/register.44079c588f3a2039c6fe.png",
+    "static/media/Sofia-Pro-Semi-Bold.otf": "/static/media/Sofia-Pro-Semi-Bold.2044892426acfe16ed20.otf",
+    "static/media/Sofia-Pro-Bold.otf": "/static/media/Sofia-Pro-Bold.48c71aa3dea90cd4f94e.otf",
+    "static/media/Sofia-Pro-ExtraLight.otf": "/static/media/Sofia-Pro-ExtraLight.d2162fc7578b0d38b109.otf",
+    "static/media/Sofia-Pro-Black.otf": "/static/media/Sofia-Pro-Black.f4bdd0977e78f635b786.otf",
+    "static/media/Sofia-Pro-Medium.otf": "/static/media/Sofia-Pro-Medium.9c1561c4f17fb1f805b3.otf",
+    "static/media/Sofia-Pro-Regular.otf": "/static/media/Sofia-Pro-Regular.d36998f5d9772461be21.otf",
+    "static/media/Sofia-Pro-Light.otf": "/static/media/Sofia-Pro-Light.9a65952e76032af94519.otf",
+    "static/media/Sofia-Pro-UltraLight.otf": "/static/media/Sofia-Pro-UltraLight.cce5e6bcb2693719526a.otf",
+    "static/media/video.png": "/static/media/video.901a4a1d44aafda58e4d.png",
+    "static/media/phone.png": "/static/media/phone.cd01c03ba08f6c304c66.png",
+    "static/media/VidyarthiLogo.png": "/static/media/VidyarthiLogo.2761f81f7dd78e580e6b.png",
+    "static/media/VidyarthifooterLogo.png": "/static/media/VidyarthifooterLogo.2b780ae6f1144f5d689b.png",
+    "static/media/lovetolearn.png": "/static/media/lovetolearn.5d5bc398958ad4447e3f.png",
+    "static/media/joinus.png": "/static/media/joinus.b24dda7da74f255501fe.png",
+    "static/media/certificate.png": "/static/media/certificate.fa85b5517d0fa9724d48.png",
+    "static/media/404.png": "/static/media/404.d285587c5c19425743a4.png",
+    "static/media/slick.svg": "/static/media/slick.2630a3e3eab21c607e21.svg",
+    "static/media/slick.eot": "/static/media/slick.a4e97f5a2a64f0ab1323.eot",
+    "static/media/slick.ttf": "/static/media/slick.c94f7671dcc99dce43e2.ttf",
+    "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
+    "index.html": "/index.html",
+    "main.bfc237ac.css.map": "/static/css/main.bfc237ac.css.map",
+    "main.0bd5bfce.js.map": "/static/js/main.0bd5bfce.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.bfc237ac.css",
+    "static/js/main.0bd5bfce.js"
+  ]
+}

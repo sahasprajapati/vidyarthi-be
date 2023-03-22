@@ -38,8 +38,18 @@ export class CourseService {
         subtitle: createCourseDto.subtitle,
         topic: createCourseDto.topic,
         courseId: courseId,
-        subCategoryId: +createCourseDto.subCategoryId,
-        categoryId: +createCourseDto.categoryId,
+        category: {
+          connect: {
+            id: +createCourseDto.categoryId,
+          },
+          // subCategoryId: +createCourseDto.subCategoryId,
+          // categoryId: +createCourseDto.categoryId,
+        },
+        subCategory: {
+          connect: {
+            id: +createCourseDto.subCategoryId,
+          },
+        },
       },
       include: {
         category: true,

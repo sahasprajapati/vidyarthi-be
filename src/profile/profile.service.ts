@@ -113,10 +113,10 @@ export class ProfileService {
     if (updateTeacherDto.biography) {
       updateData.biography = updateTeacherDto.biography;
     }
-    if (updateTeacherDto.teacherNotificationTypes?.length > 0) {
-      updateData.teacherNotificationTypes =
-        updateTeacherDto.teacherNotificationTypes;
-    }
+    // if (updateTeacherDto.teacherNotificationTypes?.length > 0) {
+    //   updateData.teacherNotificationTypes =
+    //     updateTeacherDto.teacherNotificationTypes;
+    // }
     const profile = await this.prisma.teacherProfile.upsert({
       where: { userId: id },
 

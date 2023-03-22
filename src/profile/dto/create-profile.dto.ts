@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TEACHER_NOTIFICATION_TYPE } from '@prisma/client';
 
 export class SocialProfileDto {
   @ApiProperty({ nullable: true })
@@ -42,8 +41,8 @@ export class CreateStudentProfileDto {
 }
 
 export class CreateTeacherProfileDto {
-  @ApiProperty()
-  teacherNotificationTypes: TEACHER_NOTIFICATION_TYPE[];
+  // @ApiProperty()
+  // teacherNotificationTypes: TEACHER_NOTIFICATION_TYPE[];
 
   @ApiProperty({ nullable: true })
   title?: string;
@@ -95,8 +94,8 @@ export class UpdateProfileDto {
   @ApiProperty({ nullable: true })
   isEmailUpdates?: boolean;
 
-  @ApiProperty({ nullable: true })
-  teacherNotificationTypes?: TEACHER_NOTIFICATION_TYPE[];
+  // @ApiProperty({ nullable: true })
+  // teacherNotificationTypes?: TEACHER_NOTIFICATION_TYPE[];
 
   @ApiProperty({ nullable: true })
   title?: string;

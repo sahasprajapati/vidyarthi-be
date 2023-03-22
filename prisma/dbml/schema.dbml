@@ -136,7 +136,7 @@ Table TeacherProfile {
   title String
   biography String
   phoneNumber String
-  notifications Json [not null]
+  notifications Json
   socialProfile SocialProfile
   user User
   userId Int [unique]
@@ -207,8 +207,8 @@ Table Course {
   subCategory courseCategories [not null]
   subCategoryId Int [not null]
   description String
-  learnableContent Json [not null]
-  skills Json [not null]
+  learnableContent Json
+  skills Json
   welcomeMessage String
   congratulationMessage String
   instructors User [not null]
@@ -278,7 +278,7 @@ Table Lecture {
 Table Note {
   id Int [pk, increment]
   noteDescription String
-  noteFiles Json [not null]
+  noteFiles Json
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [default: `now()`, not null]
   lecture Lecture

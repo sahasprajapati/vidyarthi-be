@@ -165,7 +165,7 @@ model TeacherProfile {
   biography   String?
   phoneNumber String?
 
-  notifications Json
+  notifications Json?
 
   socialProfile SocialProfile?
 
@@ -272,8 +272,8 @@ model Course {
 
   description String?
 
-  learnableContent Json
-  skills           Json
+  learnableContent Json?
+  skills           Json?
 
   welcomeMessage        String?
   congratulationMessage String?
@@ -366,7 +366,7 @@ model Note {
   noteDescription String?
 
   // urls to note files
-  noteFiles Json
+  noteFiles Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   lecture   Lecture?

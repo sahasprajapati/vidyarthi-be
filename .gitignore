@@ -34,12 +34,8 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-src/_gen/
 access
 
 .env
 
-static
 
-
-uploads
