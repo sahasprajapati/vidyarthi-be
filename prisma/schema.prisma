@@ -16,6 +16,7 @@ generator dbml {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model Permission {
@@ -164,7 +165,7 @@ model TeacherProfile {
   biography   String?
   phoneNumber String?
 
-  // notifications TEACHER_NOTIFICATION_TYPE[]
+  notifications Json
 
   socialProfile SocialProfile?
 
@@ -271,8 +272,8 @@ model Course {
 
   description String?
 
-  // learnableContent String[]
-  // skills           String[]
+  learnableContent Json
+  skills           Json
 
   welcomeMessage        String?
   congratulationMessage String?
@@ -365,7 +366,7 @@ model Note {
   noteDescription String?
 
   // urls to note files
-  // noteFiles String[]
+  noteFiles Json
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   lecture   Lecture?

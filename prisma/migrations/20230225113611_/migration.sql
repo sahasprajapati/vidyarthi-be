@@ -1,6 +1,0 @@
--- CreateEnum
-CREATE TYPE "Status" AS ENUM ('COMPLETED', 'REQUESTED');
-
--- AlterTable
-ALTER TABLE "Transaction" ADD COLUMN     "status" "Status" NOT NULL DEFAULT 'COMPLETED',
-ADD COLUMN     "total" INTEGER NOT NULL DEFAULT 0;
