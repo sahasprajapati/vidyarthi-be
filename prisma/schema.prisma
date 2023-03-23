@@ -3,15 +3,15 @@ generator client {
   previewFeatures = ["fullTextSearch"]
 }
 
-generator prismaClassGenerator {
-  provider               = "prisma-class-generator"
-  dryRun                 = "false"
-  separateRelationFields = "true"
-}
+// generator prismaClassGenerator {
+//   provider               = "prisma-class-generator"
+//   dryRun                 = "false"
+//   separateRelationFields = "true"
+// }
 
-generator dbml {
-  provider = "prisma-dbml-generator"
-}
+// generator dbml {
+//   provider = "prisma-dbml-generator"
+// }
 
 datasource db {
   provider = "mysql"
