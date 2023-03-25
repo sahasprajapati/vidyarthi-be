@@ -22,9 +22,7 @@
     "paths": {
       "@common/*": ["src/common/*"],
       "@gen/*": ["src/_gen/*"],
-      "@src/*": ["src/*"],
-    },
-    "preserveSymlinks": true,
-    "checkJs": false,
+      "@src/*": ["src/*"]
+    }
   }
 }

@@ -6,10 +6,11 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "prebuild": "rimraf dist && npx prisma generate && npm run copy-static",
+    "prebuild": "rimraf dist && npx prisma generate && npm run copy-static && npm run copy-template && npm run copy-uploads",
     "build": "nest build",
     "copy-static": "cp  -r 'static' 'dist'",
     "copy-template": "cp  -r 'template' 'dist'",
+    "copy-uploads": "cp  -r 'uploads' 'dist'",
     "vercel-build": "rimraf dist && npx prisma generate && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "gen-enum": "ts-node prisma/generator.ts",
