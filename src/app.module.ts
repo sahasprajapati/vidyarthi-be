@@ -42,7 +42,6 @@ import { UsersModule } from './user/user.module';
     RolesModule,
     TransactionModule,
     UploadModule,
-    EmailModule,
     CourseModule,
     CategoryModule,
     ProfileModule,
