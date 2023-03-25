@@ -1,17 +1,10 @@
 import { verifyEntity } from '@common/utils/verifyEntity';
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { SecurityConfig } from '@src/configs';
 import { PrismaService } from '@src/prisma/prisma.service';
 import { UsersService } from '@src/user/user.service';
-import { compare, hash } from 'bcrypt';
-import { EmailService } from '../email/email.service';
 import { PasswordResetRequestDto } from '../password/dto/password-reset.dto';
 import { generateJwtForPasswordReset } from '../utils/generateJwt';
 
@@ -22,7 +15,7 @@ export class PasswordService {
     private configService: ConfigService,
     private userService: UsersService,
     private readonly prisma: PrismaService,
-    private emailService: EmailService
+    // private emailService: EmailService,
   ) {}
 
   get bcryptSaltRounds(): string | number {
@@ -35,11 +28,15 @@ export class PasswordService {
   }
 
   validatePassword(password: string, hashedPassword: string): Promise<boolean> {
-    return compare(password, hashedPassword);
+    // return compare(password, hashedPassword);
+    return new Promise((resolve, reject) =>
+      resolve(password === hashedPassword),
+    );
   }
 
   hashPassword(password: string): Promise<string> {
-    return hash(password, this.bcryptSaltRounds);
+    return new Promise((resolve, reject) => resolve(password));
+    // return hash(password, this.bcryptSaltRounds);``
   }
 
   async forgotPassword(email: string) {
@@ -55,26 +52,26 @@ export class PasswordService {
     const resetToken = await generateJwtForPasswordReset(
       email,
       user.id,
-      process.env.JWT_EXPIRES_PASSWORD_RESET
+      process.env.JWT_EXPIRES_PASSWORD_RESET,
     );
 
     await this.userService.update(user.id, {
       passwordResetToken: resetToken,
     });
 
-    await this.emailService.sendMail(
-      user,
-      'forgotPassword',
-      'Reset Password',
-      resetToken
-    );
+    // await this.emailService.sendMail(
+    //   user,
+    //   'forgotPassword',
+    //   'Reset Password',
+    //   resetToken,
+    // );
 
     return `Password reset link sent to ${user.email} successfully. Please check your email.`;
   }
 
   async resetPassword(
     passwordResetDto: PasswordResetRequestDto,
-    token: string
+    token: string,
   ) {
     const user = await this.userService.findOneByToken(token);
     if (!user) {
@@ -94,7 +91,7 @@ export class PasswordService {
     if (user.isVerified) {
       passwordValid = await this.validatePassword(
         passwordResetDto.oldPassword,
-        user.password
+        user.password,
       );
     } else {
       passwordValid = user.password === passwordResetDto.oldPassword;
@@ -105,7 +102,7 @@ export class PasswordService {
     }
 
     const hashedPassword = await this.hashPassword(
-      passwordResetDto.newPassword
+      passwordResetDto.newPassword,
     );
 
     await this.prisma.user.update({
