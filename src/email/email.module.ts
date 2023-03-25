@@ -13,9 +13,9 @@ import { EmailController } from './email.cotroller';
 @Module({
   imports: [
     UsersModule,
-    BullModule.registerQueue({
-      name: 'send-email',
-    }),
+    // BullModule.registerQueue({
+    //   name: 'send-email',
+    // }),
     MailerModule.forRootAsync({
       useFactory: async (config: ConfigService) => ({
         transport: {
@@ -40,7 +40,12 @@ import { EmailController } from './email.cotroller';
       inject: [ConfigService],
     }),
   ],
-  providers: [EmailController, EmailService, PrismaService, SendEmailConsumer],
+  providers: [
+    EmailController,
+    EmailService,
+    PrismaService,
+    // SendEmailConsumer
+  ],
   exports: [EmailService],
 })
 export class EmailModule {}

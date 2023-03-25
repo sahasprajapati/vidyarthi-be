@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { generateJwtForPasswordReset } from '../utils/generateJwt';
-import { Queue } from 'bull';
+// import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
 import { User } from '@prisma/client';
 import { UsersService } from '@src/user/user.service';
@@ -14,15 +14,14 @@ import { UsersService } from '@src/user/user.service';
 export class EmailService {
   constructor(
     private mailerService: MailerService,
-    private userService: UsersService,
-    @InjectQueue('send-email') private readonly sendEmailQueue: Queue
+    private userService: UsersService, // @InjectQueue('send-email') private readonly sendEmailQueue: Queue
   ) {}
 
   async sendMail(
     user: any,
     emailTemplate: string,
     emailSubject: string,
-    token: string
+    token: string,
   ) {
     const link = `http://localhost:3000/reset-password?token=${token}`;
 
@@ -57,7 +56,7 @@ export class EmailService {
     const resetToken = await generateJwtForPasswordReset(
       user.email,
       user.id,
-      process.env.JWT_EXPIRES_INITIAL_EMAIL
+      process.env.JWT_EXPIRES_INITIAL_EMAIL,
     );
 
     await this.userService.update(user.id, {
@@ -68,7 +67,7 @@ export class EmailService {
       user,
       'initialEmail',
       'Verification Email',
-      resetToken
+      resetToken,
     );
   }
 
@@ -83,12 +82,10 @@ export class EmailService {
   //   //   }
   //   // });
 
-
   //   const users = await this.userService.findManyByEmail(emails);
   //   await this.sendEmailQueue.add('send-email-job', {
   //     users,
   //   });
 
-    
   // }
 }
