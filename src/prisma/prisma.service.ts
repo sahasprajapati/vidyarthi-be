@@ -3,10 +3,6 @@ import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class PrismaService extends PrismaClient {
-  async onModuleInit() {
-    await this.$connect();
-    console.log('Connected to Prisma');
-  }
   async enableShutdownHooks(app: INestApplication) {
     this.$on('beforeExit', async () => {
       await app.close();
