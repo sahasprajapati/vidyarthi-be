@@ -1,5 +1,3 @@
-import { Occupation } from '@gen/prisma-class/occupation';
-import { TeacherNotification } from '@gen/prisma-class/teacher_notification';
 import { ApiProperty } from '@nestjs/swagger';
 import { SocialProfile } from '@prisma/client';
 import { UserEntity } from '@src/user/entities/user.entity';
@@ -14,10 +12,8 @@ export class StudentProfileDto {
   @ApiProperty()
   dob: Date;
 
-  @ApiProperty({
-    enum: Occupation,
-  })
-  occupation: Occupation;
+  @ApiProperty({})
+  occupation: string;
 
   @ApiProperty()
   phone: string;
@@ -53,9 +49,8 @@ export class TeacherProfileDto {
   @ApiProperty()
   socialProfileId: number;
   @ApiProperty({
-    enum: TeacherNotification,
   })
-  occupation: TeacherNotification;
+  occupation: string;
 
   @ApiProperty()
   title: string;

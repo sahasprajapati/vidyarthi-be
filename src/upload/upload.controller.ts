@@ -1,3 +1,4 @@
+import { S3Client } from '@aws-sdk/client-s3';
 import { ApiCustomResponse } from '@common/decorators/api-custom-response.decorator';
 import { ResponseDto } from '@common/dtos/response.dto';
 import {
@@ -11,10 +12,12 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { generateRepsonseMessage } from '@src/roles/response';
-import { diskStorage, StorageEngine } from 'multer';
+import multerS3 from 'multer-s3';
 import path from 'path';
 import { UploadDto } from './dto/upload.dto';
 import { UploadService } from './upload.service';
+
+const s3 = new S3Client({ region: process.env.AWS_REGION });
 
 @Controller('upload')
 @ApiBearerAuth()
@@ -25,9 +28,13 @@ export class UploadController {
   @Post('/file')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads/',
-        filename: function (req, file, cb) {
+      storage: multerS3({
+        s3: s3,
+        bucket: process.env.AWS_BUCKET,
+        metadata: function (req, file, cb) {
+          cb(null, { fieldName: file.fieldname });
+        },
+        key: function (req, file, cb) {
           console.log('File', file);
           const uniqueSuffix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -40,6 +47,21 @@ export class UploadController {
           );
         },
       }),
+      // storage: diskStorage({
+      //   destination: './uploads/',
+      //   filename: function (req, file, cb) {
+      //     console.log('File', file);
+      //     const uniqueSuffix =
+      //       Date.now() + '-' + Math.round(Math.random() * 1e9);
+      //     cb(
+      //       null,
+      //       file?.fieldname +
+      //         '-' +
+      //         uniqueSuffix +
+      //         path.extname(file.originalname),
+      //     );
+      //   },
+      // }),
       //   fileFilter: imageFileFilter,
     }),
   )
@@ -62,14 +84,17 @@ export class UploadController {
         // validators: [new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' })],
       }),
     )
-    file: Express.Multer.File,
+    file: any,
   ) {
-    const res = await this.uploadService
-      .uploadFile(file)
+    // const res = await this.uploadService
+    //   .uploadFile(file)
 
-      .catch((err) => {
-        throw new BadRequestException('Here is where it went wrong');
-      });
+    //   .catch((err) => {
+    //     throw new BadRequestException('Here is where it went wrong');
+    //   });
+    const res = {
+      url: file.location,
+    };
     return new ResponseDto(
       generateRepsonseMessage({
         model: 'Upload',
@@ -82,9 +107,13 @@ export class UploadController {
   @Post('/video')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads/',
-        filename: function (req, file, cb) {
+      storage: multerS3({
+        s3: s3,
+        bucket: process.env.AWS_BUCKET,
+        metadata: function (req, file, cb) {
+          cb(null, { fieldName: file.fieldname });
+        },
+        key: function (req, file, cb) {
           console.log('File', file);
           const uniqueSuffix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -97,6 +126,21 @@ export class UploadController {
           );
         },
       }),
+      // storage: diskStorage({
+      //   destination: './uploads/',
+      //   filename: function (req, file, cb) {
+      //     console.log('File', file);
+      //     const uniqueSuffix =
+      //       Date.now() + '-' + Math.round(Math.random() * 1e9);
+      //     cb(
+      //       null,
+      //       file?.fieldname +
+      //         '-' +
+      //         uniqueSuffix +
+      //         path.extname(file.originalname),
+      //     );
+      //   },
+      // }),
       //   fileFilter: imageFileFilter,
     }),
   )
@@ -119,11 +163,14 @@ export class UploadController {
         // validators: [new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' })],
       }),
     )
-    file: Express.Multer.File,
+    file: any,
   ) {
-    const res = await this.uploadService.uploadVideoFile(file).catch((err) => {
-      throw new BadRequestException('Here is where it went wrong');
-    });
+    // const res = await this.uploadService.uploadVideoFile(file).catch((err) => {
+    //   throw new BadRequestException('Here is where it went wrong');
+    // });
+    const res = {
+      url: file?.location,
+    };
     return new ResponseDto(
       generateRepsonseMessage({
         model: 'Upload',
