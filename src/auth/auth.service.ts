@@ -2,7 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
-  UnauthorizedException
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -103,6 +103,9 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
+    if (registerDto.role < 1) {
+      return new BadRequestException('Something went wrongu');
+    }
     if (registerDto.password !== registerDto.confirmPassword) {
       return new BadRequestException('Password do not match');
     }
@@ -115,7 +118,7 @@ export class AuthService {
       email: registerDto.email,
       password: registerDto.password,
       passwordResetToken: null,
-      roleId: 2, // student
+      roleId: registerDto?.role ?? 2, // student
     });
     return {
       ...this.generateTokens({

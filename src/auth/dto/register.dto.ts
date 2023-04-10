@@ -15,4 +15,7 @@ export class RegisterDto {
 
   @ApiProperty()
   confirmPassword: string;
+
+  @ApiProperty()
+  role: number;
 }
