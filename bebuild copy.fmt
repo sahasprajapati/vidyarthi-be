@@ -1,0 +1,14 @@
+# /bin/bash
+
+ssh -i "vidyarthi-be-access.pem" {user}@{server} "cd vidyarthi-be/; \
+    git pull origin main; \
+    npx prisma migrate deploy;\
+     npx prisma generate; \
+    pnpm build; \
+    pm2 reload 0;"
+ 
+
+# ssh -i "vidyarthi-be-access.pem"   "\
+#     echo "import { Category } from './category';" | cat - src/_gen/prisma-class/category_relations.ts > temp && mv temp src/_gen/prisma-class/category_relations.ts;"
+
+echo "Done"
