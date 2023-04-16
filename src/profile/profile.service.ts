@@ -63,7 +63,7 @@ export class ProfileService {
       updateData.phone = updateStudentDto.phone;
     }
     if (updateStudentDto.dob) {
-      updateData.dob = updateStudentDto.dob;
+      updateData.dob = new Date(updateStudentDto.dob);
     }
     if (updateStudentDto.institution) {
       updateData.institution = updateStudentDto.institution;
