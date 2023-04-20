@@ -40,6 +40,6 @@ export class GoogleOauthController {
     // For now, we'll just show the user object
     const tokens = await this.authService.login(user);
 
-    return res.redirect(`https://vidyarthinepal.com/login?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}&role=${user?.role?.name}`)
+    return res.redirect(`http://localhost:3003/login?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}&role=${user?.role?.name}`)
   }
 }

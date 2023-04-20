@@ -13,8 +13,8 @@ export class FacebookStrategy extends PassportStrategy(Strategy, "facebook") {
       clientSecret: configService.get<string>('FB_SECRET'),
       callbackURL: configService.get<string>('FB_CALLBACK_URL'),
       scope: "email",
-      profileFields: ["emails", "name"],
-    });
+      profileFields: ['id', 'displayName', 'name', 'gender', 'picture.type(large)']
+    })
   }
 
   async validate(
@@ -29,6 +29,7 @@ export class FacebookStrategy extends PassportStrategy(Strategy, "facebook") {
       providerId: id,
       email: emails[0].value,
       name: name.givenName + " "+ name.familyName,
+      picture: profile.photos ? profile.photos[0].value : ''
     };
     const payload = {
       ...user,

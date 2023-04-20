@@ -24,14 +24,15 @@ export class GoogleOauthStrategy extends PassportStrategy(Strategy, 'google') {
     _refreshToken: string,
     profile: Profile,
   ) {
-    const { id, name, emails } = profile;
+    const { id, name, emails, photos } = profile;
 
     // Here a custom User object is returned. In the the repo I'm using a UsersService with repository pattern, learn more here: https://docs.nestjs.com/techniques/database
     return {
       provider: 'google',
       providerId: id,
-      name: name.givenName,
+      name: name.givenName + " " +name.familyName ?? "",
       email: emails[0].value,
+      picture:photos[0].value,
     };
   }
 }
