@@ -36,6 +36,11 @@ export class UsersService {
         email: createUserDto.email,
         password: createUserDto.password,
         roleId: createUserDto.roleId,
+        ...(createUserDto?.picture
+          ? {
+              picture: createUserDto.picture,
+            }
+          : {}),
       },
       include: {
         role: true,

@@ -35,6 +35,7 @@ export class GoogleOauthController {
         password: nanoid(),
         passwordResetToken: null,
         roleId: 2,
+        picture: (req.user as any)?.picture,
       });
     }
     // For now, we'll just show the user object
