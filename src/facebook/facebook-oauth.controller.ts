@@ -44,7 +44,7 @@ export class FacebookOauthController {
     const tokens = await this.authService.login(user);
 
     return res.redirect(
-      `http://localhost:3003/login?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}&role=${user?.role?.name}`,
+      `https://vidyarthinepal.com/login?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}&role=${user?.role?.name}`,
     );
   }
 }
