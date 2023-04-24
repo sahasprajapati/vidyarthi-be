@@ -77,6 +77,15 @@ export class ProfileService {
     if (updateStudentDto.isEmailUpdates) {
       updateData.isEmailUpdates = updateStudentDto.isEmailUpdates;
     }
+    if (updateStudentDto.picture) {
+      updateData.image = updateStudentDto.picture;
+      await this.prisma.user.update({
+        where: { id: id },
+        data: {
+          image: updateStudentDto.picture,
+        },
+      });
+    }
     const profile = await this.prisma.studentProfile.upsert({
       where: { userId: id },
 
@@ -116,6 +125,15 @@ export class ProfileService {
     if (updateTeacherDto.teacherNotificationTypes?.length > 0) {
       updateData.teacherNotificationTypes =
         updateTeacherDto.teacherNotificationTypes;
+    }
+    if (updateTeacherDto.picture) {
+      updateData.image = updateTeacherDto.picture;
+      await this.prisma.user.update({
+        where: { id: id },
+        data: {
+          image: updateTeacherDto.picture,
+        },
+      });
     }
     const profile = await this.prisma.teacherProfile.upsert({
       where: { userId: id },
@@ -511,7 +529,7 @@ export class ProfileService {
           select: {
             teacherCourses: true,
           },
-        },  
+        },
         teacherCourses: {
           select: {
             _count: {

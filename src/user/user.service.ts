@@ -38,7 +38,7 @@ export class UsersService {
         roleId: createUserDto.roleId,
         ...(createUserDto?.picture
           ? {
-              picture: createUserDto.picture,
+              image: createUserDto.picture,
             }
           : {}),
       },
@@ -167,6 +167,7 @@ export class UsersService {
         coursesOnStudents: true,
         teacherCourses: true,
         isVerified: true,
+        image: true
       },
     });
   }
@@ -260,7 +261,14 @@ export class UsersService {
     return this.prisma.user.update({
       where: { id },
 
-      data: updateUserDto,
+      data: {
+        ...updateUserDto,
+        ...(updateUserDto?.picture
+          ? {
+              image: updateUserDto.picture,
+            }
+          : {}),
+      },
     });
   }
 

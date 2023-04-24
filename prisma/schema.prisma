@@ -95,6 +95,7 @@ model User {
   cart               Cart?
   paidTransactions   Transaction[]   @relation("paidBy")
   earnedTransactions Transaction[]   @relation("paidTo")
+  image              String?
 }
 
 model CoursesOnStudents {
@@ -127,7 +128,7 @@ model Achievement {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  image                      String
+  image                      String?
   coursesOnStudents          CoursesOnStudents @relation(fields: [coursesOnStudentsCourseId, coursesOnStudentsStudentId], references: [courseId, studentId])
   coursesOnStudentsCourseId  Int
   coursesOnStudentsStudentId Int
@@ -202,9 +203,9 @@ model Transaction {
   id     Int           @id @default(autoincrement())
   medium PaymentMedium @default(ESEWA)
 
-  status Status  @default(COMPLETED)
+  status Status @default(COMPLETED)
 
-  total    Int @default(0)
+  total    Int    @default(0)
   course   Course @relation(fields: [courseId], references: [id])
   courseId Int
 
@@ -230,6 +231,7 @@ enum Status {
   COMPLETED
   REQUESTED
 }
+
 model Rating {
   id      Int    @id @default(autoincrement())
   message String

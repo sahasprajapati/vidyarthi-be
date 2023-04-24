@@ -1,15 +1,16 @@
 import { User } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { tr } from 'date-fns/locale';
 enum SocialProvider {
   FACEBOOK,
   GOOGLE,
   NONE,
 }
 export class UserEntity implements User {
-  @ApiProperty({required: false})
+  @ApiProperty({ required: false })
   studentProfileId: number;
-  @ApiProperty({required: false})
+  @ApiProperty({ required: false })
   teacherProfileId: number;
 
   @Exclude()
@@ -49,4 +50,7 @@ export class UserEntity implements User {
 
   @ApiProperty()
   cartId: number;
+
+  @ApiProperty({ nullable: true })
+  image: string;
 }

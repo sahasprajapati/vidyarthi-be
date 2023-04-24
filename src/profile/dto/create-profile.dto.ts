@@ -39,6 +39,9 @@ export class CreateStudentProfileDto {
 
   @ApiProperty({ nullable: true })
   isEmailUpdates?: boolean;
+
+  @ApiProperty({ nullable: true })
+  picture?: string;
 }
 
 export class CreateTeacherProfileDto {
@@ -56,6 +59,9 @@ export class CreateTeacherProfileDto {
 
   @ApiProperty({ nullable: true })
   socialProfile?: SocialProfileDto;
+
+  @ApiProperty({ nullable: true })
+  picture?: string;
 }
 
 export class CreateWishlistDto {
